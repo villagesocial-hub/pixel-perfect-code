@@ -1,10 +1,10 @@
-import { Heart, Clock, Truck, Store } from "lucide-react";
+import { Heart, Clock, Truck, Store, Plus, Minus } from "lucide-react";
 import { Button } from "./ui/button";
 import { ProductBadge } from "./ProductBadge";
 import { StarRating } from "./StarRating";
 import { SoldBadge } from "./SoldBadge";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,11 +48,15 @@ export const ProductCard = ({
   showStartRating = false,
 }: ProductCardProps) => {
   const [favorite, setFavorite] = useState(isFavorite);
-  const { addToCart } = useCart();
+  const { items, addToCart, updateQuantity, removeFromCart } = useCart();
   const { toast } = useToast();
 
   // Generate a unique ID for the product
   const productId = title.toLowerCase().replace(/\s+/g, '-').slice(0, 30);
+
+  // Get current quantity in cart
+  const cartItem = useMemo(() => items.find(item => item.id === productId), [items, productId]);
+  const quantityInCart = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
     addToCart({
@@ -67,6 +71,18 @@ export const ProductCard = ({
       title: "Added to cart!",
       description: title.slice(0, 50) + "...",
     });
+  };
+
+  const handleIncrement = () => {
+    updateQuantity(productId, quantityInCart + 1);
+  };
+
+  const handleDecrement = () => {
+    if (quantityInCart <= 1) {
+      removeFromCart(productId);
+    } else {
+      updateQuantity(productId, quantityInCart - 1);
+    }
   };
 
   // Calculate stock percentage for progress bar (assume max stock is 10)
@@ -209,10 +225,37 @@ export const ProductCard = ({
           </div>
         )}
 
-        {/* Add to Cart Button */}
-        <Button variant="cart" size="cart" className="mt-auto w-fit" onClick={handleAddToCart}>
-          Add to cart
-        </Button>
+        {/* Add to Cart Button or Quantity Controls */}
+        {quantityInCart === 0 ? (
+          <Button variant="cart" size="cart" className="mt-auto w-fit" onClick={handleAddToCart}>
+            Add to cart
+          </Button>
+        ) : (
+          <div className="mt-auto flex items-center gap-2">
+            <div className="flex items-center border border-primary rounded-lg overflow-hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-none hover:bg-primary/10"
+                onClick={handleDecrement}
+              >
+                <Minus className="w-4 h-4 text-primary" />
+              </Button>
+              <span className="w-8 text-center text-sm font-bold text-primary">
+                {quantityInCart}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-none hover:bg-primary/10"
+                onClick={handleIncrement}
+              >
+                <Plus className="w-4 h-4 text-primary" />
+              </Button>
+            </div>
+            <span className="text-xs text-muted-foreground">in cart</span>
+          </div>
+        )}
       </div>
     </div>
   );
