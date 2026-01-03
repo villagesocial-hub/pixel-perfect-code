@@ -26,9 +26,18 @@ export const CartItem = ({ item }: CartItemProps) => {
           {item.title}
         </h3>
         {item.seller && (
-          <p className="text-xs text-muted-foreground mb-2">
+          <p className="text-xs text-muted-foreground mb-1">
             Sold by {item.seller}
           </p>
+        )}
+        {item.options && item.options.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {item.options.map((option, idx) => (
+              <span key={idx} className="text-xs bg-secondary/50 text-muted-foreground px-2 py-0.5 rounded">
+                {option.type}: {option.value}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* Price */}
