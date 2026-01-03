@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+
+export interface CartItemOption {
+  type: string; // e.g., "color", "size"
+  value: string;
+}
 
 export interface CartItem {
   id: string;
@@ -8,6 +13,7 @@ export interface CartItem {
   originalPrice?: number;
   quantity: number;
   seller?: string;
+  options?: CartItemOption[];
 }
 
 interface CartContextType {
@@ -15,6 +21,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateItemOptions: (id: string, options: CartItemOption[]) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
@@ -22,6 +29,7 @@ interface CartContextType {
   setPromoCode: (code: string) => void;
   promoDiscount: number;
   applyPromoCode: (code: string) => boolean;
+  removePromoCode: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -32,10 +40,41 @@ const PROMO_CODES: Record<string, number> = {
   WELCOME: 15,
 };
 
+const CART_STORAGE_KEY = "shopping-cart";
+const PROMO_STORAGE_KEY = "promo-code";
+
+const loadCartFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const loadPromoFromStorage = (): { code: string; discount: number } => {
+  try {
+    const stored = localStorage.getItem(PROMO_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : { code: "", discount: 0 };
+  } catch {
+    return { code: "", discount: 0 };
+  }
+};
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [promoCode, setPromoCode] = useState("");
-  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [items, setItems] = useState<CartItem[]>(loadCartFromStorage);
+  const [promoCode, setPromoCode] = useState(() => loadPromoFromStorage().code);
+  const [promoDiscount, setPromoDiscount] = useState(() => loadPromoFromStorage().discount);
+
+  // Persist cart to localStorage
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
+
+  // Persist promo code to localStorage
+  useEffect(() => {
+    localStorage.setItem(PROMO_STORAGE_KEY, JSON.stringify({ code: promoCode, discount: promoDiscount }));
+  }, [promoCode, promoDiscount]);
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
@@ -63,8 +102,21 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const updateItemOptions = (id: string, options: CartItemOption[]) => {
+    setItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, options } : i))
+    );
+  };
+
   const clearCart = () => {
     setItems([]);
+    setPromoCode("");
+    setPromoDiscount(0);
+    localStorage.removeItem(CART_STORAGE_KEY);
+    localStorage.removeItem(PROMO_STORAGE_KEY);
+  };
+
+  const removePromoCode = () => {
     setPromoCode("");
     setPromoDiscount(0);
   };
@@ -95,6 +147,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateItemOptions,
         clearCart,
         getCartTotal,
         getCartCount,
@@ -102,6 +155,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setPromoCode,
         promoDiscount,
         applyPromoCode,
+        removePromoCode,
       }}
     >
       {children}
