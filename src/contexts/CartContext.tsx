@@ -18,6 +18,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
+  savedItems: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -30,6 +31,9 @@ interface CartContextType {
   promoDiscount: number;
   applyPromoCode: (code: string) => boolean;
   removePromoCode: () => void;
+  saveForLater: (id: string) => void;
+  moveToCart: (id: string) => void;
+  removeFromSaved: (id: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -42,10 +46,20 @@ const PROMO_CODES: Record<string, number> = {
 
 const CART_STORAGE_KEY = "shopping-cart";
 const PROMO_STORAGE_KEY = "promo-code";
+const SAVED_STORAGE_KEY = "saved-for-later";
 
 const loadCartFromStorage = (): CartItem[] => {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const loadSavedFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(SAVED_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -63,6 +77,7 @@ const loadPromoFromStorage = (): { code: string; discount: number } => {
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(loadCartFromStorage);
+  const [savedItems, setSavedItems] = useState<CartItem[]>(loadSavedFromStorage);
   const [promoCode, setPromoCode] = useState(() => loadPromoFromStorage().code);
   const [promoDiscount, setPromoDiscount] = useState(() => loadPromoFromStorage().discount);
 
@@ -70,6 +85,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  // Persist saved items to localStorage
+  useEffect(() => {
+    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedItems));
+  }, [savedItems]);
 
   // Persist promo code to localStorage
   useEffect(() => {
@@ -140,10 +160,39 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return false;
   };
 
+  const saveForLater = (id: string) => {
+    const item = items.find((i) => i.id === id);
+    if (item) {
+      setSavedItems((prev) => [...prev, item]);
+      setItems((prev) => prev.filter((i) => i.id !== id));
+    }
+  };
+
+  const moveToCart = (id: string) => {
+    const item = savedItems.find((i) => i.id === id);
+    if (item) {
+      setItems((prev) => {
+        const existing = prev.find((i) => i.id === id);
+        if (existing) {
+          return prev.map((i) =>
+            i.id === id ? { ...i, quantity: i.quantity + item.quantity } : i
+          );
+        }
+        return [...prev, item];
+      });
+      setSavedItems((prev) => prev.filter((i) => i.id !== id));
+    }
+  };
+
+  const removeFromSaved = (id: string) => {
+    setSavedItems((prev) => prev.filter((i) => i.id !== id));
+  };
+
   return (
     <CartContext.Provider
       value={{
         items,
+        savedItems,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -156,6 +205,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         promoDiscount,
         applyPromoCode,
         removePromoCode,
+        saveForLater,
+        moveToCart,
+        removeFromSaved,
       }}
     >
       {children}

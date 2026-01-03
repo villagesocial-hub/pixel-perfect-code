@@ -1,8 +1,9 @@
 import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useMemo } from "react";
 
-const suggestedProducts = [
+const allSuggestedProducts = [
   {
     id: "suggest-1",
     image: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=200&h=200&fit=crop",
@@ -24,10 +25,37 @@ const suggestedProducts = [
     price: 6.99,
     seller: "HomeEssentials",
   },
+  {
+    id: "suggest-4",
+    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&h=200&fit=crop",
+    title: "Stainless Steel Scrubber Set",
+    price: 9.99,
+    seller: "KitchenPro",
+  },
+  {
+    id: "suggest-5",
+    image: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=200&h=200&fit=crop",
+    title: "Eco-Friendly Dish Soap",
+    price: 7.49,
+    seller: "GreenHome",
+  },
 ];
 
 export const FrequentlyBoughtTogether = () => {
-  const { addToCart } = useCart();
+  const { items, addToCart } = useCart();
+
+  // Filter out products already in cart and show up to 3
+  const suggestedProducts = useMemo(() => {
+    const cartIds = new Set(items.map(item => item.id));
+    return allSuggestedProducts
+      .filter(product => !cartIds.has(product.id))
+      .slice(0, 3);
+  }, [items]);
+
+  // Don't render if no suggestions available
+  if (suggestedProducts.length === 0) {
+    return null;
+  }
 
   const totalPrice = suggestedProducts.reduce((sum, p) => sum + p.price, 0);
 
