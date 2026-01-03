@@ -39,9 +39,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const PROMO_CODES: Record<string, number> = {
-  SAVE10: 10,
-  SAVE20: 20,
-  WELCOME: 15,
+  TEST20: 20,
 };
 
 const CART_STORAGE_KEY = "shopping-cart";

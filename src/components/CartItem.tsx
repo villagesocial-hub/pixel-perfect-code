@@ -2,7 +2,7 @@ import { Minus, Plus, Trash2, Bookmark, Truck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useCart, CartItem as CartItemType } from "@/contexts/CartContext";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface CartItemProps {
   item: CartItemType;
@@ -18,13 +18,15 @@ export const CartItem = ({ item, isSaved = false }: CartItemProps) => {
     ? (item.originalPrice - item.price) * item.quantity
     : 0;
 
-  // Generate estimated delivery date (3-5 business days from now)
-  const getDeliveryDate = () => {
+  // Stable delivery date - computed once per item
+  const deliveryDate = useMemo(() => {
     const today = new Date();
-    const deliveryDays = Math.floor(Math.random() * 3) + 3; // 3-5 days
+    // Use item.id to generate consistent delivery days per item
+    const hash = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const deliveryDays = (hash % 3) + 3; // 3-5 days based on item id
     today.setDate(today.getDate() + deliveryDays);
     return today.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  };
+  }, [item.id]);
 
   const handleQuantityChange = (value: string) => {
     setQuantityInput(value);
@@ -126,7 +128,7 @@ export const CartItem = ({ item, isSaved = false }: CartItemProps) => {
         {/* Estimated Delivery */}
         <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
           <Truck className="w-3 h-3" />
-          <span>Get it by <span className="font-medium text-foreground">{getDeliveryDate()}</span></span>
+          <span>Get it by <span className="font-medium text-foreground">{deliveryDate}</span></span>
         </div>
 
         {/* Price */}
