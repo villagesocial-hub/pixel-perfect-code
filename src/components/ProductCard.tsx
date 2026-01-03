@@ -5,6 +5,8 @@ import { StarRating } from "./StarRating";
 import { SoldBadge } from "./SoldBadge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   image: string;
@@ -46,6 +48,26 @@ export const ProductCard = ({
   showStartRating = false,
 }: ProductCardProps) => {
   const [favorite, setFavorite] = useState(isFavorite);
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+
+  // Generate a unique ID for the product
+  const productId = title.toLowerCase().replace(/\s+/g, '-').slice(0, 30);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: productId,
+      image,
+      title,
+      price,
+      originalPrice,
+      seller,
+    });
+    toast({
+      title: "Added to cart!",
+      description: title.slice(0, 50) + "...",
+    });
+  };
 
   // Calculate stock percentage for progress bar (assume max stock is 10)
   const stockPercentage = stockLeft ? Math.min((stockLeft / 10) * 100, 100) : 0;
@@ -188,7 +210,7 @@ export const ProductCard = ({
         )}
 
         {/* Add to Cart Button */}
-        <Button variant="cart" size="cart" className="mt-auto w-fit">
+        <Button variant="cart" size="cart" className="mt-auto w-fit" onClick={handleAddToCart}>
           Add to cart
         </Button>
       </div>
