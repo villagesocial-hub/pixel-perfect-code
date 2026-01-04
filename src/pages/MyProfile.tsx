@@ -638,21 +638,36 @@ export default function MyProfile() {
                           <p className="mt-1.5 text-xs text-muted-foreground">
                             To change your verified email, enter a new one below:
                           </p>
-                          <Input 
-                            id="email" 
-                            value={identityDraft.email === profile.email ? "" : identityDraft.email} 
-                            onChange={e => setIdentityDraft(d => ({
-                              ...d,
-                              email: e.target.value || profile.email
-                            }))} 
-                            placeholder="Enter new email"
-                            aria-invalid={Boolean(identityErrors.email)} 
-                            autoComplete="email" 
-                            className="mt-1.5" 
-                          />
+                          <div className="flex gap-2 mt-1.5">
+                            <Input 
+                              id="email" 
+                              value={identityDraft.email === profile.email ? "" : identityDraft.email} 
+                              onChange={e => setIdentityDraft(d => ({
+                                ...d,
+                                email: e.target.value || profile.email
+                              }))} 
+                              placeholder="Enter new email"
+                              aria-invalid={Boolean(identityErrors.email)} 
+                              autoComplete="email" 
+                              className="flex-1" 
+                            />
+                            {identityDraft.email !== profile.email && identityDraft.email && isEmail(identityDraft.email) && (
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-1 shrink-0"
+                                onClick={() => handleSendVerificationCode("email")}
+                                disabled={sendingCode}
+                              >
+                                <ShieldCheck className="h-4 w-4" />
+                                {sendingCode ? "Sending..." : "Verify"}
+                              </Button>
+                            )}
+                          </div>
                           {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
                           {identityDraft.email !== profile.email && identityDraft.email && (
-                            <p className="mt-1 text-xs text-amber-600">New email will require verification after saving.</p>
+                            <p className="mt-1 text-xs text-amber-600">Click Verify to confirm your new email.</p>
                           )}
                         </div>
                       ) : (
@@ -700,21 +715,36 @@ export default function MyProfile() {
                           <p className="mt-1.5 text-xs text-muted-foreground">
                             To change your verified phone, enter a new one below:
                           </p>
-                          <Input 
-                            id="phone" 
-                            value={identityDraft.phone === profile.phone ? "" : identityDraft.phone} 
-                            onChange={e => setIdentityDraft(d => ({
-                              ...d,
-                              phone: sanitizePhone(e.target.value) || profile.phone
-                            }))} 
-                            placeholder="Enter new phone"
-                            aria-invalid={Boolean(identityErrors.phone)} 
-                            autoComplete="tel" 
-                            className="mt-1.5" 
-                          />
+                          <div className="flex gap-2 mt-1.5">
+                            <Input 
+                              id="phone" 
+                              value={identityDraft.phone === profile.phone ? "" : identityDraft.phone} 
+                              onChange={e => setIdentityDraft(d => ({
+                                ...d,
+                                phone: sanitizePhone(e.target.value) || profile.phone
+                              }))} 
+                              placeholder="Enter new phone"
+                              aria-invalid={Boolean(identityErrors.phone)} 
+                              autoComplete="tel" 
+                              className="flex-1" 
+                            />
+                            {identityDraft.phone !== profile.phone && identityDraft.phone && hasMin(identityDraft.phone, 6) && (
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-1 shrink-0"
+                                onClick={() => handleSendVerificationCode("phone")}
+                                disabled={sendingCode}
+                              >
+                                <ShieldCheck className="h-4 w-4" />
+                                {sendingCode ? "Sending..." : "Verify"}
+                              </Button>
+                            )}
+                          </div>
                           {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
                           {identityDraft.phone !== profile.phone && identityDraft.phone && (
-                            <p className="mt-1 text-xs text-amber-600">New phone will require verification after saving.</p>
+                            <p className="mt-1 text-xs text-amber-600">Click Verify to confirm your new phone.</p>
                           )}
                         </div>
                       ) : (
