@@ -1,22 +1,27 @@
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Receipt, Star, MapPin, CreditCard, ExternalLink } from "lucide-react";
+import {
+  FileText,
+  Receipt,
+  MessageCircle,
+  Star,
+  Pencil,
+  Trash2,
+  ExternalLink,
+  Eye
+} from "lucide-react";
 import type { Order, ReviewTarget, DeleteTarget } from "@/types/orders";
-import { formatMoney, statusTone, reviewedCounts } from "@/lib/orders-utils";
+import { formatMoney, statusTone, makeSvgThumbDataUrl } from "@/lib/orders-utils";
 import { StatusIcon } from "./StatusIcon";
-import { OrderStarRating } from "./OrderStarRating";
+import { StarRating } from "./StarRating";
 
 interface OrderDetailSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  order: Order | undefined;
+  order: Order | null;
   onDownloadInvoice: (order: Order) => void;
   onDownloadReceipt: (order: Order) => void;
   onStartReview: (target: ReviewTarget) => void;
@@ -36,160 +41,291 @@ export function OrderDetailSheet({
 }: OrderDetailSheetProps) {
   if (!order) return null;
 
-  const { orderReviewed } = reviewedCounts(order);
   const canReview = order.status === "Delivered";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-3">
-            <span>{order.number}</span>
-            <Badge variant={statusTone(order.status)} className="gap-1.5">
-              <StatusIcon status={order.status} />
-              {order.status}
-            </Badge>
-          </SheetTitle>
+          <SheetTitle>Order details</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
-          {/* Order Info */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span>{order.address}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CreditCard className="h-4 w-4" />
-              <span>{order.paymentMethod}</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Ordered on {order.date}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Items */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Items ({order.items.length})</h3>
-            {order.items.map((item) => {
-              const itemReview = order.itemReviews?.[item.id];
-              return (
-                <div key={item.id} className="flex gap-3 p-3 rounded-xl border bg-card/50">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className="w-16 h-16 rounded-lg object-cover bg-secondary cursor-pointer"
-                    onClick={() => onOpenProduct(item.productUrl)}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="font-medium text-sm line-clamp-2">{item.name}</div>
-                        <div className="text-xs text-muted-foreground">{item.variant} × {item.qty}</div>
-                        <div className="text-sm font-medium mt-1">{formatMoney(item.price)}</div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => onOpenProduct(item.productUrl)}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {itemReview && (
-                      <div className="mt-2 pt-2 border-t">
-                        <OrderStarRating value={itemReview.rating} />
-                        {itemReview.text && (
-                          <p className="text-xs text-muted-foreground mt-1">{itemReview.text}</p>
-                        )}
-                      </div>
-                    )}
-                    {canReview && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2 h-7 text-xs gap-1"
-                        onClick={() => onStartReview({ type: "item", orderId: order.id, itemId: item.id })}
-                      >
-                        <Star className="h-3 w-3" />
-                        {itemReview ? "Edit review" : "Review item"}
-                      </Button>
-                    )}
-                  </div>
+        <div className="mt-4 space-y-4">
+          {/* Order Info Card */}
+          <Card className="rounded-2xl">
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <CardTitle className="text-xl">{order.number}</CardTitle>
+                  <div className="mt-1 text-sm text-muted-foreground">{order.date}</div>
                 </div>
-              );
-            })}
-          </div>
+                <Badge variant={statusTone(order.status)} className="gap-1.5">
+                  <StatusIcon status={order.status} />
+                  <span>{order.status}</span>
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border p-3">
+                  <div className="text-xs text-muted-foreground">Payment</div>
+                  <div className="text-sm font-semibold">{order.paymentMethod}</div>
+                </div>
+                <div className="rounded-2xl border p-3">
+                  <div className="text-xs text-muted-foreground">Total</div>
+                  <div className="text-sm font-semibold">{formatMoney(order.total)}</div>
+                </div>
+              </div>
 
-          <Separator />
+              <div className="rounded-2xl border p-3">
+                <div className="text-xs text-muted-foreground">Delivery address</div>
+                <div className="text-sm font-semibold">{order.address}</div>
+              </div>
 
-          {/* Order Total */}
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">Total</span>
-            <span className="text-lg font-bold">{formatMoney(order.total)}</span>
-          </div>
-
-          {/* Order Review */}
-          {order.orderReview && (
-            <>
               <Separator />
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Your Order Review</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive h-7 text-xs"
-                    onClick={() => onRequestDelete({ type: "order", orderId: order.id })}
-                  >
-                    Delete
-                  </Button>
-                </div>
-                <OrderStarRating value={order.orderReview.rating} />
-                {order.orderReview.text && (
-                  <p className="text-sm text-muted-foreground">{order.orderReview.text}</p>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-2"
+                  onClick={() => onDownloadInvoice(order)}
+                >
+                  <FileText className="h-4 w-4" /> Download invoice
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-2"
+                  onClick={() => onDownloadReceipt(order)}
+                >
+                  <Receipt className="h-4 w-4" /> Download receipt
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-2"
+                  onClick={() => alert("Support flow would open here")}
+                >
+                  <MessageCircle className="h-4 w-4" /> Contact support
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Order Review Card */}
+          <Card className="rounded-2xl">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-base">Order review</CardTitle>
+                {canReview ? (
+                  order.orderReview ? (
+                    <Badge variant="secondary" className="gap-1.5">
+                      <Star className="h-4 w-4" /> Reviewed
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline">Not reviewed</Badge>
+                  )
+                ) : (
+                  <Badge variant="outline">Available after delivery</Badge>
                 )}
               </div>
-            </>
-          )}
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {!canReview ? (
+                <div className="text-sm text-muted-foreground">
+                  You can review this order once it has been delivered.
+                </div>
+              ) : order.orderReview ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <StarRating value={order.orderReview.rating} />
+                    <div className="text-sm font-semibold">
+                      {order.orderReview.rating.toFixed(1)} / 5.0
+                    </div>
+                  </div>
+                  {order.orderReview.text ? (
+                    <div className="text-sm text-muted-foreground">{order.orderReview.text}</div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">No written review</div>
+                  )}
+                  {order.orderReview.images?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {order.orderReview.images.map((src) => (
+                        <img
+                          key={src}
+                          src={src}
+                          alt="Review"
+                          className="h-14 w-14 rounded-xl border object-cover"
+                        />
+                      ))}
+                    </div>
+                  ) : null}
 
-          <Separator />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      className="rounded-xl gap-2"
+                      onClick={() => onStartReview({ type: "order", orderId: order.id })}
+                    >
+                      <Pencil className="h-4 w-4" /> Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="rounded-xl gap-2"
+                      onClick={() => onRequestDelete({ type: "order", orderId: order.id })}
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  className="rounded-xl gap-2"
+                  onClick={() => onStartReview({ type: "order", orderId: order.id })}
+                >
+                  <Star className="h-4 w-4" /> Review order
+                </Button>
+              )}
+            </CardContent>
+          </Card>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 rounded-xl"
-              onClick={() => onDownloadInvoice(order)}
-            >
-              <FileText className="h-4 w-4" />
-              Invoice
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 rounded-xl"
-              onClick={() => onDownloadReceipt(order)}
-            >
-              <Receipt className="h-4 w-4" />
-              Receipt
-            </Button>
-            {canReview && (
-              <Button
-                variant="default"
-                size="sm"
-                className="gap-2 rounded-xl"
-                onClick={() => onStartReview({ type: "order", orderId: order.id })}
-              >
-                <Star className="h-4 w-4" />
-                {orderReviewed ? "Edit Review" : "Review Order"}
-              </Button>
-            )}
-          </div>
+          {/* Items Card */}
+          <Card className="rounded-2xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Items</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {order.items.map((item) => {
+                const itemReview = order.itemReviews?.[item.id];
+                const disabled = order.status !== "Delivered";
+
+                return (
+                  <div key={item.id} className="rounded-2xl border p-3">
+                    <div className="flex items-start gap-3">
+                      <button
+                        type="button"
+                        onClick={() => onOpenProduct(item.productUrl)}
+                        className="h-14 w-14 overflow-hidden rounded-2xl border bg-muted flex-shrink-0"
+                        aria-label={`Open ${item.name}`}
+                      >
+                        <img
+                          src={item.imageUrl || makeSvgThumbDataUrl(item.name)}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src = makeSvgThumbDataUrl(item.name);
+                          }}
+                        />
+                      </button>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-semibold">{item.name}</div>
+                            <div className="text-sm text-muted-foreground">{item.variant}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-semibold">{formatMoney(item.price)}</div>
+                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <div className="mt-1 text-sm text-muted-foreground">Qty {item.qty}</div>
+
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {itemReview ? (
+                            <Badge variant="secondary" className="gap-1.5">
+                              <Star className="h-4 w-4" /> Reviewed
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">Not reviewed</Badge>
+                          )}
+
+                          {itemReview && (
+                            <div className="flex items-center gap-2">
+                              <StarRating value={itemReview.rating} />
+                              <div className="text-sm text-muted-foreground">
+                                {itemReview.rating.toFixed(1)}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="ml-auto flex flex-wrap gap-2">
+                            {itemReview ? (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-xl gap-2"
+                                  onClick={() =>
+                                    onStartReview({ type: "item", orderId: order.id, itemId: item.id })
+                                  }
+                                >
+                                  <Eye className="h-4 w-4" /> View
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="rounded-xl gap-2"
+                                  onClick={() =>
+                                    onStartReview({ type: "item", orderId: order.id, itemId: item.id })
+                                  }
+                                >
+                                  <Pencil className="h-4 w-4" /> Edit
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-xl gap-2"
+                                  onClick={() =>
+                                    onRequestDelete({ type: "item", orderId: order.id, itemId: item.id })
+                                  }
+                                >
+                                  <Trash2 className="h-4 w-4" /> Delete
+                                </Button>
+                              </>
+                            ) : disabled ? (
+                              <Button variant="outline" size="sm" className="rounded-xl gap-2" disabled>
+                                <Star className="h-4 w-4" /> Review
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="rounded-xl gap-2"
+                                onClick={() =>
+                                  onStartReview({ type: "item", orderId: order.id, itemId: item.id })
+                                }
+                              >
+                                <Star className="h-4 w-4" /> Review
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        {itemReview && (
+                          <div className="mt-3 pt-3 border-t">
+                            {itemReview.text ? (
+                              <div className="text-sm text-muted-foreground">{itemReview.text}</div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground">No written review</div>
+                            )}
+                            {itemReview.images?.length ? (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {itemReview.images.map((src) => (
+                                  <img
+                                    key={src}
+                                    src={src}
+                                    alt="Review"
+                                    className="h-14 w-14 rounded-xl border object-cover"
+                                  />
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
         </div>
       </SheetContent>
     </Sheet>

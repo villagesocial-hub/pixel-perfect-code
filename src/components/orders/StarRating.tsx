@@ -1,12 +1,10 @@
 import { Star } from "lucide-react";
 
-interface OrderStarRatingProps {
+interface StarRatingProps {
   value: number;
-  onChange?: (value: number) => void;
-  interactive?: boolean;
 }
 
-export function OrderStarRating({ value, onChange, interactive = false }: OrderStarRatingProps) {
+export function StarRating({ value }: StarRatingProps) {
   const v = Math.max(0, Math.min(5, Number(value) || 0));
   const full = Math.floor(v);
   const partial = v - full;
@@ -19,11 +17,7 @@ export function OrderStarRating({ value, onChange, interactive = false }: OrderS
         const isPartial = idx === full + 1 && partial > 0;
 
         return (
-          <div
-            key={idx}
-            className={`relative h-5 w-5 ${interactive ? "cursor-pointer" : ""}`}
-            onClick={() => interactive && onChange?.(idx)}
-          >
+          <div key={idx} className="relative h-5 w-5">
             <Star
               className={`h-5 w-5 ${isFull ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
             />
