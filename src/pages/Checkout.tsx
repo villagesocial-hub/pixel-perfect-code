@@ -483,6 +483,10 @@ const Checkout = () => {
         open={showProfileValidation}
         onOpenChange={setShowProfileValidation}
         missingFields={missingFields}
+        onComplete={() => {
+          // Re-trigger order placement after completing profile
+          setShowProfileValidation(false);
+        }}
       />
     </div>
   );
