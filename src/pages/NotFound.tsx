@@ -16,7 +16,7 @@ const NotFound = () => {
         {/* 4 0 4 with rotating Ban icon */}
         <div className="mb-8 flex items-center justify-center gap-2">
           <span className="text-8xl font-bold text-foreground">4</span>
-          <Ban className="w-24 h-24 text-destructive animate-spin" style={{ animationDuration: '3s' }} />
+          <Ban className="w-24 h-24 text-destructive animate-spin" style={{ animationDuration: '10s' }} />
           <span className="text-8xl font-bold text-foreground">4</span>
         </div>
 
