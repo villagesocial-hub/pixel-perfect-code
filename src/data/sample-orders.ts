@@ -8,7 +8,7 @@ export const sampleOrders: Order[] = [
     date: "Jan 4, 2026",
     total: 67.25,
     status: "Delivered",
-    paymentMethod: "Card",
+    paymentMethod: "Cash on delivery",
     address: "Beirut, Badaro, Example Street 9",
     items: [
       {
@@ -28,7 +28,7 @@ export const sampleOrders: Order[] = [
     date: "Jan 2, 2026",
     total: 128.5,
     status: "Delivered",
-    paymentMethod: "Card",
+    paymentMethod: "Cash on delivery",
     address: "Beirut, Achrafieh, Example Street 12",
     orderReview: {
       rating: 4.2,
@@ -86,7 +86,7 @@ export const sampleOrders: Order[] = [
     date: "Dec 12, 2025",
     total: 199.9,
     status: "Pending",
-    paymentMethod: "Card",
+    paymentMethod: "Cash on delivery",
     address: "Beirut, Verdun, Example Building 5",
     items: [
       {
