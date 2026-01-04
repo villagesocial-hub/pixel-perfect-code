@@ -360,10 +360,16 @@ const Checkout = () => {
               className="w-full mt-6" 
               size="lg"
               onClick={handlePlaceOrder} 
-              disabled={isProcessing || !selectedLocation}
+              disabled={isProcessing}
             >
               {isProcessing ? "Processing..." : "Place Order"}
             </Button>
+
+            {locations.length === 0 && (
+              <p className="text-xs text-destructive text-center mt-2">
+                Please add a delivery location first
+              </p>
+            )}
 
             {!selectedLocation && locations.length > 0 && (
               <p className="text-xs text-destructive text-center mt-2">
