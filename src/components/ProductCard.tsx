@@ -268,28 +268,28 @@ export const ProductCard = ({
           </Button>
         ) : (
           <div className="mt-auto flex items-center gap-2">
-            <div className="flex items-center border border-primary rounded-lg overflow-hidden">
+            <div className="flex items-center border border-foreground rounded-lg overflow-hidden">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-none hover:bg-primary/10"
+                className="h-8 w-8 rounded-none hover:bg-foreground/10"
                 onClick={handleDecrement}
               >
-                <Minus className="w-4 h-4 text-primary" />
+                <Minus className="w-4 h-4 text-foreground" />
               </Button>
-              <span className="w-8 text-center text-sm font-bold text-primary">
+              <span className="w-8 text-center text-sm font-bold text-foreground">
                 {quantityInCart}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-none hover:bg-primary/10"
+                className="h-8 w-8 rounded-none hover:bg-foreground/10"
                 onClick={handleIncrement}
               >
-                <Plus className="w-4 h-4 text-primary" />
+                <Plus className="w-4 h-4 text-foreground" />
               </Button>
             </div>
-            <span className="text-xs text-muted-foreground">in cart</span>
+            <span className="text-xs text-foreground">in cart</span>
           </div>
         )}
       </div>
