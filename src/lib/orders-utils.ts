@@ -29,7 +29,7 @@ export function makeSvgThumbDataUrl(label: string) {
 }
 
 export function safeFilename(s: string) {
-  return String(s || "document").replace(/[^a-zA-Z0-9_.-]+/g, " ").trim();
+  return String(s || "document").replace(/[^a-zA-Z0-9 _.-]+/g, " ").trim();
 }
 
 export function downloadFile(filename: string, mime: string, content: string) {
@@ -60,7 +60,7 @@ export function docText(order: Order) {
     `Payment: ${order.paymentMethod}`,
     `Address: ${order.address}`,
     "Items:",
-    ...order.items.map((it) => `- ${it.name} (${it.variant}) x${it.qty} ${formatMoney(it.price)}`),
+    ...order.items.map((it) => `- ${it.name} (${it.variant}) x${it.qty}  ${formatMoney(it.price)}`),
     "",
     "This is a prototype document.",
   ];

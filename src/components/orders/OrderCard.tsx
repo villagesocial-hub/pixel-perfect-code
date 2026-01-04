@@ -8,11 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FileText, Receipt, Star, MoreVertical } from "lucide-react";
 import type { Order } from "@/types/orders";
-import { formatMoney, statusTone, reviewedCounts } from "@/lib/orders-utils";
+import { formatMoney, statusTone, reviewedCounts, reviewDisabledReason } from "@/lib/orders-utils";
 import { StatusIcon } from "./StatusIcon";
-import { OrderStarRating } from "./OrderStarRating";
+import { StarRating } from "./StarRating";
 
 interface OrderCardProps {
   order: Order;
@@ -27,10 +32,11 @@ export function OrderCard({
   onOpen,
   onDownloadInvoice,
   onDownloadReceipt,
-  onStartReview,
+  onStartReview
 }: OrderCardProps) {
-  const { orderReviewed } = reviewedCounts(order);
+  const { itemReviewed, itemsTotal, orderReviewed } = reviewedCounts(order);
   const reviewDisabled = order.status !== "Delivered";
+  const tooltip = reviewDisabledReason(order);
 
   return (
     <div
@@ -50,11 +56,13 @@ export function OrderCard({
           <div className="text-sm font-semibold">{order.number}</div>
           <div className="text-xs text-muted-foreground">{order.date}</div>
         </div>
+
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Badge variant={statusTone(order.status)} className="gap-1.5">
             <StatusIcon status={order.status} />
             <span>{order.status}</span>
           </Badge>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="rounded-xl h-8 w-8" aria-label="Actions">
@@ -64,50 +72,58 @@ export function OrderCard({
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
+
               <DropdownMenuItem onClick={() => onDownloadInvoice(order)} className="gap-2">
                 <FileText className="h-4 w-4" /> Download invoice
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDownloadReceipt(order)} className="gap-2">
                 <Receipt className="h-4 w-4" /> Download receipt
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onStartReview(order.id)}
-                disabled={reviewDisabled}
-                className="gap-2"
-              >
-                <Star className="h-4 w-4" />
-                {orderReviewed ? "Edit review" : "Write a review"}
-              </DropdownMenuItem>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <DropdownMenuItem
+                      className={`gap-2 ${reviewDisabled ? "opacity-50 pointer-events-none" : ""}`}
+                      onClick={() => onStartReview(order.id)}
+                    >
+                      <Star className="h-4 w-4" /> Review
+                    </DropdownMenuItem>
+                  </div>
+                </TooltipTrigger>
+                {reviewDisabled && (
+                  <TooltipContent>
+                    <div className="text-xs">{tooltip}</div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* Items Preview */}
-      <div className="mt-3 flex gap-2 overflow-x-auto">
-        {order.items.slice(0, 3).map((item) => (
-          <div key={item.id} className="flex-shrink-0">
-            <img
-              src={item.imageUrl}
-              alt={item.name}
-              className="w-12 h-12 rounded-lg object-cover bg-secondary"
-            />
-          </div>
-        ))}
-        {order.items.length > 3 && (
-          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">
-            +{order.items.length - 3}
-          </div>
-        )}
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="text-sm font-semibold">{formatMoney(order.total)}</div>
+        <div className="text-xs text-muted-foreground">{order.items.length} items</div>
       </div>
 
-      {/* Order Total and Review */}
-      <div className="mt-3 flex items-center justify-between">
-        <div className="text-sm font-medium">{formatMoney(order.total)}</div>
-        {order.orderReview && (
-          <OrderStarRating value={order.orderReview.rating} />
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {orderReviewed ? (
+          <div className="flex items-center gap-2">
+            <StarRating value={order.orderReview!.rating} />
+            <span className="text-xs font-medium text-muted-foreground">
+              {order.orderReview!.rating.toFixed(1)}
+            </span>
+          </div>
+        ) : (
+          <Badge variant="outline">Order not reviewed</Badge>
         )}
+
+        <Badge variant="outline">
+          Items reviewed {itemReviewed}/{itemsTotal}
+        </Badge>
       </div>
     </div>
   );

@@ -1,438 +1,838 @@
-import { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  User,
-  MapPin,
-  Plus,
-  Pencil,
-  Trash2,
-  Check,
-  Phone,
-  Mail,
-} from "lucide-react";
-import type { Address } from "@/types/orders";
-import { sampleAddresses } from "@/data/sample-addresses";
-import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Check, Pencil, Plus, Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
+
+type LanguageCode = "en" | "ar" | "fr";
+
+type Profile = {
+  imageDataUrl: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  phone: string;
+  phoneVerified: boolean;
+  joiningDate: string;
+  gender: "male" | "female" | "other" | "prefer_not_to_say" | "";
+  dateOfBirth: string;
+  languageCode: LanguageCode;
+};
+
+type Location = {
+  id: string;
+  label: string;
+  addressLine: string;
+  city: string;
+  region: string;
+  country: string;
+  notes: string;
+  isPrimary: boolean;
+};
+
+function formatJoinDate(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
+function initials(firstName: string, lastName: string) {
+  const a = (firstName || "").trim().slice(0, 1);
+  const b = (lastName || "").trim().slice(0, 1);
+  return (a + b).toUpperCase() || "U";
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function sanitizePhone(value: string) {
+  return value.replace(/[^0-9+\s]/g, "");
+}
+
+function isEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function hasMin(value: string, n: number) {
+  return value.trim().length >= n;
+}
+
+const languageOptions: Array<{
+  code: LanguageCode;
+  label: string;
+}> = [
+  { code: "en", label: "English" },
+  { code: "ar", label: "Arabic" },
+  { code: "fr", label: "French" }
+];
 
 export default function MyProfile() {
-  const { toast } = useToast();
-  
-  // Profile state
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
+  const [profile, setProfile] = useState<Profile>({
+    imageDataUrl: "",
+    firstName: "Antoun",
+    lastName: "El Morr",
+    email: "antoun@example.com",
+    emailVerified: true,
     phone: "+961 70 123 456",
+    phoneVerified: false,
+    joiningDate: "2025-07-14T12:00:00.000Z",
+    gender: "",
+    dateOfBirth: "",
+    languageCode: "en"
   });
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [tempProfile, setTempProfile] = useState(profile);
 
-  // Address state
-  const [addresses, setAddresses] = useState<Address[]>(sampleAddresses);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(
-    addresses.find((a) => a.isDefault)?.id ?? addresses[0]?.id ?? ""
-  );
-  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [tempAddress, setTempAddress] = useState<Partial<Address>>({});
-  const [deleteAddressOpen, setDeleteAddressOpen] = useState(false);
-  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [locations, setLocations] = useState<Location[]>([
+    {
+      id: uid(),
+      label: "Home",
+      addressLine: "Hamra, Bliss Street, Building 12",
+      city: "Beirut",
+      region: "Beirut",
+      country: "Lebanon",
+      notes: "Call on arrival",
+      isPrimary: true
+    }
+  ]);
 
-  // Profile handlers
-  const handleSaveProfile = () => {
-    setProfile(tempProfile);
-    setEditProfileOpen(false);
-    toast({ title: "Profile updated", description: "Your profile has been saved." });
-  };
+  const [identityEditing, setIdentityEditing] = useState(false);
+  const [prefsEditing, setPrefsEditing] = useState(false);
 
-  // Address handlers
-  const handleAddAddress = () => {
-    setEditingAddress(null);
-    setTempAddress({ label: "", fullAddress: "", city: "", isDefault: false });
-    setAddressDialogOpen(true);
-  };
+  const [identityDraft, setIdentityDraft] = useState(() => ({
+    imageDataUrl: profile.imageDataUrl,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    email: profile.email,
+    phone: profile.phone
+  }));
 
-  const handleEditAddress = (address: Address) => {
-    setEditingAddress(address);
-    setTempAddress(address);
-    setAddressDialogOpen(true);
-  };
+  const [prefsDraft, setPrefsDraft] = useState(() => ({
+    gender: profile.gender,
+    dateOfBirth: profile.dateOfBirth,
+    languageCode: profile.languageCode
+  }));
 
-  const handleSaveAddress = () => {
-    if (!tempAddress.label || !tempAddress.fullAddress || !tempAddress.city) {
-      toast({ title: "Missing fields", description: "Please fill all required fields.", variant: "destructive" });
+  const [identityErrors, setIdentityErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  }>({});
+
+  const [prefsErrors, setPrefsErrors] = useState<{
+    dateOfBirth?: string;
+  }>({});
+
+  const [toast, setToast] = useState<{
+    title: string;
+    message?: string;
+  } | null>(null);
+
+  const [savingSection, setSavingSection] = useState<"identity" | "prefs" | "location" | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const primaryLocation = useMemo(() => locations.find(l => l.isPrimary), [locations]);
+
+  const profileCompletion = useMemo(() => {
+    const checks = [
+      hasMin(profile.firstName, 2),
+      hasMin(profile.lastName, 2),
+      isEmail(profile.email),
+      hasMin(profile.phone, 6),
+      locations.length > 0,
+      locations.some(l => l.isPrimary)
+    ];
+    const ok = checks.filter(Boolean).length;
+    return Math.round(ok / checks.length * 100);
+  }, [profile.firstName, profile.lastName, profile.email, profile.phone, locations]);
+
+  function showToast(title: string, message?: string) {
+    setToast({ title, message });
+    window.setTimeout(() => setToast(null), 2500);
+  }
+
+  function startIdentityEdit() {
+    setIdentityDraft({
+      imageDataUrl: profile.imageDataUrl,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      phone: profile.phone
+    });
+    setIdentityErrors({});
+    setIdentityEditing(true);
+  }
+
+  function cancelIdentityEdit() {
+    setIdentityEditing(false);
+    setIdentityErrors({});
+  }
+
+  async function saveIdentity() {
+    const errors: typeof identityErrors = {};
+    if (!hasMin(identityDraft.firstName, 2)) errors.firstName = "Enter your first name";
+    if (!hasMin(identityDraft.lastName, 2)) errors.lastName = "Enter your last name";
+    if (!isEmail(identityDraft.email)) errors.email = "Enter a valid email";
+    if (!hasMin(identityDraft.phone, 6)) errors.phone = "Enter a valid phone number";
+    setIdentityErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    const emailChanged = identityDraft.email.trim() !== profile.email;
+    const phoneChanged = identityDraft.phone.trim() !== profile.phone;
+
+    setSavingSection("identity");
+    await new Promise(r => setTimeout(r, 650));
+
+    setProfile(p => ({
+      ...p,
+      imageDataUrl: identityDraft.imageDataUrl,
+      firstName: identityDraft.firstName.trim(),
+      lastName: identityDraft.lastName.trim(),
+      email: identityDraft.email.trim(),
+      phone: identityDraft.phone.trim(),
+      emailVerified: emailChanged ? false : p.emailVerified,
+      phoneVerified: phoneChanged ? false : p.phoneVerified
+    }));
+
+    setSavingSection(null);
+    setIdentityEditing(false);
+
+    if (emailChanged || phoneChanged) {
+      showToast("Saved", "Email or phone changed. Verification is required.");
+      return;
+    }
+    showToast("Saved", "Your identity details are updated.");
+  }
+
+  function startPrefsEdit() {
+    setPrefsDraft({
+      gender: profile.gender,
+      dateOfBirth: profile.dateOfBirth,
+      languageCode: profile.languageCode
+    });
+    setPrefsErrors({});
+    setPrefsEditing(true);
+  }
+
+  function cancelPrefsEdit() {
+    setPrefsEditing(false);
+    setPrefsErrors({});
+  }
+
+  async function savePrefs() {
+    const errors: typeof prefsErrors = {};
+    if (prefsDraft.dateOfBirth) {
+      const d = new Date(prefsDraft.dateOfBirth);
+      if (Number.isNaN(d.getTime())) errors.dateOfBirth = "Pick a valid date";
+    }
+    setPrefsErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    setSavingSection("prefs");
+    await new Promise(r => setTimeout(r, 550));
+
+    setProfile(p => ({
+      ...p,
+      gender: prefsDraft.gender,
+      dateOfBirth: prefsDraft.dateOfBirth,
+      languageCode: prefsDraft.languageCode
+    }));
+
+    setSavingSection(null);
+    setPrefsEditing(false);
+    showToast("Saved", "Preferences updated.");
+  }
+
+  async function setPrimary(id: string) {
+    setSavingSection("location");
+    await new Promise(r => setTimeout(r, 450));
+    setLocations(prev => prev.map(l => ({
+      ...l,
+      isPrimary: l.id === id
+    })));
+    setSavingSection(null);
+    showToast("Updated", "Primary location set.");
+  }
+
+  async function removeLocation(id: string) {
+    const target = locations.find(l => l.id === id);
+    if (!target) return;
+    const remaining = locations.filter(l => l.id !== id);
+    if (target.isPrimary && remaining.length) {
+      remaining[0] = { ...remaining[0], isPrimary: true };
+    }
+    setSavingSection("location");
+    await new Promise(r => setTimeout(r, 450));
+    setLocations(remaining);
+    setSavingSection(null);
+    showToast("Removed", "Location removed.");
+  }
+
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
+  const [locationDraft, setLocationDraft] = useState<Omit<Location, "id" | "isPrimary">>({
+    label: "Home",
+    addressLine: "",
+    city: "",
+    region: "",
+    country: "Lebanon",
+    notes: ""
+  });
+  const [locationErrors, setLocationErrors] = useState<{
+    label?: string;
+    addressLine?: string;
+    city?: string;
+    region?: string;
+    country?: string;
+  }>({});
+
+  function openAddLocation() {
+    setEditingLocationId(null);
+    setLocationDraft({
+      label: "Home",
+      addressLine: "",
+      city: "",
+      region: "",
+      country: "Lebanon",
+      notes: ""
+    });
+    setLocationErrors({});
+    setLocationDialogOpen(true);
+  }
+
+  function openEditLocation(l: Location) {
+    setEditingLocationId(l.id);
+    setLocationDraft({
+      label: l.label,
+      addressLine: l.addressLine,
+      city: l.city,
+      region: l.region,
+      country: l.country,
+      notes: l.notes
+    });
+    setLocationErrors({});
+    setLocationDialogOpen(true);
+  }
+
+  async function saveLocation() {
+    const errors: typeof locationErrors = {};
+    if (!hasMin(locationDraft.label, 2)) errors.label = "Add a label";
+    if (!hasMin(locationDraft.addressLine, 5)) errors.addressLine = "Enter an address";
+    if (!hasMin(locationDraft.city, 2)) errors.city = "Enter a city";
+    if (!hasMin(locationDraft.region, 2)) errors.region = "Enter a region";
+    if (!hasMin(locationDraft.country, 2)) errors.country = "Enter a country";
+    setLocationErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    setSavingSection("location");
+    await new Promise(r => setTimeout(r, 600));
+
+    if (editingLocationId) {
+      setLocations(prev => prev.map(l => l.id === editingLocationId ? {
+        ...l,
+        label: locationDraft.label.trim(),
+        addressLine: locationDraft.addressLine.trim(),
+        city: locationDraft.city.trim(),
+        region: locationDraft.region.trim(),
+        country: locationDraft.country.trim(),
+        notes: locationDraft.notes.trim()
+      } : l));
+      setSavingSection(null);
+      setLocationDialogOpen(false);
+      showToast("Saved", "Location updated.");
       return;
     }
 
-    if (editingAddress) {
-      // Update existing
-      setAddresses((prev) =>
-        prev.map((a) => {
-          if (a.id === editingAddress.id) {
-            return { ...a, ...tempAddress } as Address;
-          }
-          // If new address is default, remove default from others
-          if (tempAddress.isDefault) {
-            return { ...a, isDefault: false };
-          }
-          return a;
-        })
-      );
-      toast({ title: "Address updated" });
-    } else {
-      // Add new
-      const newId = `addr-${Date.now()}`;
-      const newAddress: Address = {
-        id: newId,
-        label: tempAddress.label!,
-        fullAddress: tempAddress.fullAddress!,
-        city: tempAddress.city!,
-        isDefault: tempAddress.isDefault ?? false,
-      };
-      setAddresses((prev) => {
-        let updated = [...prev, newAddress];
-        if (newAddress.isDefault) {
-          updated = updated.map((a) =>
-            a.id === newId ? a : { ...a, isDefault: false }
-          );
-        }
-        return updated;
-      });
-      if (tempAddress.isDefault || addresses.length === 0) {
-        setSelectedAddressId(newId);
-      }
-      toast({ title: "Address added" });
+    const isFirst = locations.length === 0;
+    setLocations(prev => [...prev, {
+      id: uid(),
+      label: locationDraft.label.trim(),
+      addressLine: locationDraft.addressLine.trim(),
+      city: locationDraft.city.trim(),
+      region: locationDraft.region.trim(),
+      country: locationDraft.country.trim(),
+      notes: locationDraft.notes.trim(),
+      isPrimary: isFirst
+    }]);
+
+    setSavingSection(null);
+    setLocationDialogOpen(false);
+    showToast("Saved", isFirst ? "Location saved as primary." : "Location added.");
+  }
+
+  async function onPickProfileImage(file: File | null) {
+    if (!file) return;
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      showToast("Image too large", "Please choose an image under 5MB.");
+      return;
     }
-
-    setAddressDialogOpen(false);
-    setEditingAddress(null);
-    setTempAddress({});
-  };
-
-  const handleDeleteAddress = (id: string) => {
-    setAddressToDelete(id);
-    setDeleteAddressOpen(true);
-  };
-
-  const confirmDeleteAddress = () => {
-    if (!addressToDelete) return;
-    setAddresses((prev) => prev.filter((a) => a.id !== addressToDelete));
-    if (selectedAddressId === addressToDelete) {
-      setSelectedAddressId(addresses.find((a) => a.id !== addressToDelete)?.id ?? "");
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      showToast("Unsupported format", "Use JPG, PNG, or WEBP.");
+      return;
     }
-    setDeleteAddressOpen(false);
-    setAddressToDelete(null);
-    toast({ title: "Address deleted" });
-  };
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setIdentityDraft(d => ({ ...d, imageDataUrl: result }));
+      showToast("Selected", "Save to apply the new photo.");
+    };
+    reader.readAsDataURL(file);
+  }
 
-  const handleSelectAddress = (id: string) => {
-    setSelectedAddressId(id);
-    toast({ title: "Delivery location updated" });
-  };
+  const needsAttention = useMemo(() => {
+    const missingPhone = !hasMin(profile.phone, 6);
+    const missingPrimary = !primaryLocation;
+    return missingPhone || missingPrimary;
+  }, [profile.phone, primaryLocation]);
 
-  const handleSetDefaultAddress = (id: string) => {
-    setAddresses((prev) =>
-      prev.map((a) => ({
-        ...a,
-        isDefault: a.id === id,
-      }))
-    );
-    setSelectedAddressId(id);
-    toast({ title: "Default address updated" });
-  };
-
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+  const fullName = `${profile.firstName} ${profile.lastName}`.trim();
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl p-4 md:p-6 space-y-6">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="w-6 h-6 text-primary" />
-          </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">My Profile</h1>
-            <p className="text-sm text-muted-foreground">Manage your account and addresses</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Profile</h1>
+            <p className="text-sm text-muted-foreground">Manage your identity, preferences, and saved locations.</p>
           </div>
         </div>
 
-        {/* Profile Info */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Personal Information</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => {
-                setTempProfile(profile);
-                setEditProfileOpen(true);
-              }}
-            >
-              <Pencil className="w-4 h-4" />
-              Edit
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span>{profile.name}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-muted-foreground" />
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-4 h-4 text-muted-foreground" />
-              <span>{profile.phone}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Delivery Locations */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-primary" />
-              <CardTitle className="text-lg">Delivery Locations</CardTitle>
-            </div>
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleAddAddress}>
-              <Plus className="w-4 h-4" />
-              Add Address
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {addresses.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <MapPin className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No addresses saved yet</p>
-                <Button variant="link" onClick={handleAddAddress}>
-                  Add your first address
-                </Button>
+        {/* Toast */}
+        {toast ? (
+          <div className="mt-4 animate-fade-in rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 rounded-full border border-primary/20 bg-primary/10 p-1">
+                <Check className="h-4 w-4 text-primary" />
               </div>
-            ) : (
-              <RadioGroup value={selectedAddressId} onValueChange={handleSelectAddress}>
-                <div className="space-y-3">
-                  {addresses.map((address) => (
-                    <div
-                      key={address.id}
-                      className={`relative flex items-start gap-3 p-4 rounded-xl border transition ${
-                        selectedAddressId === address.id
-                          ? "border-primary bg-primary/5"
-                          : "hover:bg-muted/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
-                      <div className="flex-1 min-w-0">
-                        <Label
-                          htmlFor={address.id}
-                          className="flex items-center gap-2 font-medium cursor-pointer"
-                        >
-                          {address.label}
-                          {address.isDefault && (
-                            <Badge variant="secondary" className="text-xs">
-                              Default
-                            </Badge>
-                          )}
-                        </Label>
-                        <p className="text-sm text-muted-foreground mt-1">{address.fullAddress}</p>
-                        <p className="text-xs text-muted-foreground">{address.city}</p>
+              <div>
+                <div className="text-sm font-medium text-foreground">{toast.title}</div>
+                {toast.message ? <div className="text-sm text-muted-foreground">{toast.message}</div> : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-6 grid grid-cols-1 gap-4">
+          {/* Identity Card */}
+          <Card className="rounded-2xl border-border shadow-sm">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="text-foreground">Identity</CardTitle>
+                <CardDescription>Who you are and how we reach you.</CardDescription>
+              </div>
+
+              {!identityEditing ? (
+                <Button variant="outline" size="sm" onClick={startIdentityEdit} className="gap-2">
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={cancelIdentityEdit} disabled={savingSection === "identity"}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={saveIdentity} disabled={savingSection === "identity"}>
+                    {savingSection === "identity" ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+
+            <CardContent>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border-2 border-border">
+                      <AvatarImage src={identityEditing ? identityDraft.imageDataUrl || undefined : profile.imageDataUrl || undefined} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {initials(profile.firstName, profile.lastName)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="min-w-0">
+                      <div className="text-lg font-semibold leading-tight truncate text-foreground">{fullName || "Your name"}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <Badge variant={profile.emailVerified ? "outline" : "secondary"}>
+                          Email {profile.emailVerified ? "verified" : "not verified"}
+                        </Badge>
+                        <Badge variant={profile.phoneVerified ? "outline" : "secondary"}>
+                          Phone {profile.phoneVerified ? "verified" : "not verified"}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {!address.isDefault && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetDefaultAddress(address.id);
-                            }}
-                          >
-                            <Check className="w-3 h-3 mr-1" />
-                            Set default
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Joined {formatJoinDate(profile.joiningDate)} · Joining date is not editable.
+                      </div>
+                    </div>
+                  </div>
+
+                  {identityEditing ? (
+                    <div className="flex flex-col gap-2 sm:items-end">
+                      <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e => onPickProfileImage(e.target.files?.[0] ?? null)} />
+                      <Button type="button" variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="h-4 w-4" />
+                        Change photo
+                      </Button>
+                      <p className="text-xs text-muted-foreground">JPG, PNG, WEBP up to 5MB.</p>
+                    </div>
+                  ) : null}
+                </div>
+
+                <Separator />
+
+                {!identityEditing ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Email</div>
+                      <div className="font-medium text-foreground">{profile.email}</div>
+                    </div>
+
+                    <div>
+                      <div className="text-sm text-muted-foreground">Phone</div>
+                      <div className="font-medium text-foreground">{profile.phone}</div>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <div className="text-sm text-muted-foreground">Primary location</div>
+                      <div className="font-medium text-foreground">
+                        {primaryLocation ? `${primaryLocation.label}, ${primaryLocation.city}` : "Not set"}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="firstName">First name</Label>
+                      <Input id="firstName" value={identityDraft.firstName} onChange={e => setIdentityDraft(d => ({
+                        ...d,
+                        firstName: e.target.value
+                      }))} aria-invalid={Boolean(identityErrors.firstName)} autoComplete="given-name" className="mt-1.5" />
+                      {identityErrors.firstName ? <p className="mt-1 text-xs text-destructive">{identityErrors.firstName}</p> : null}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="lastName">Last name</Label>
+                      <Input id="lastName" value={identityDraft.lastName} onChange={e => setIdentityDraft(d => ({
+                        ...d,
+                        lastName: e.target.value
+                      }))} aria-invalid={Boolean(identityErrors.lastName)} autoComplete="family-name" className="mt-1.5" />
+                      {identityErrors.lastName ? <p className="mt-1 text-xs text-destructive">{identityErrors.lastName}</p> : null}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" value={identityDraft.email} onChange={e => setIdentityDraft(d => ({
+                        ...d,
+                        email: e.target.value
+                      }))} aria-invalid={Boolean(identityErrors.email)} autoComplete="email" className="mt-1.5" />
+                      {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
+                      <p className="mt-1 text-xs text-muted-foreground">Changing email requires verification.</p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input id="phone" value={identityDraft.phone} onChange={e => setIdentityDraft(d => ({
+                        ...d,
+                        phone: sanitizePhone(e.target.value)
+                      }))} aria-invalid={Boolean(identityErrors.phone)} autoComplete="tel" className="mt-1.5" />
+                      {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
+                      <p className="mt-1 text-xs text-muted-foreground">Changing phone requires verification.</p>
+                    </div>
+
+                    <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 rounded-full border border-border p-1">
+                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-foreground">Photo preview</div>
+                          <div className="text-xs text-muted-foreground">Your new photo will apply after you save.</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Preferences Card */}
+          <Card className="rounded-2xl border-border shadow-sm">
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-foreground">Preferences</CardTitle>
+                <CardDescription>Optional details to personalize your experience.</CardDescription>
+              </div>
+
+              {!prefsEditing ? (
+                <Button variant="outline" size="sm" onClick={startPrefsEdit} className="gap-2">
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={cancelPrefsEdit} disabled={savingSection === "prefs"}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={savePrefs} disabled={savingSection === "prefs"}>
+                    {savingSection === "prefs" ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+
+            <CardContent>
+              {!prefsEditing ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Gender</div>
+                    <div className="font-medium text-foreground capitalize">{profile.gender ? profile.gender.replace(/_/g, " ") : "Not set"}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Date of birth</div>
+                    <div className="font-medium text-foreground">{profile.dateOfBirth || "Not set"}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Language</div>
+                    <div className="font-medium text-foreground">{languageOptions.find(l => l.code === profile.languageCode)?.label ?? profile.languageCode}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <Label>Gender</Label>
+                    <Select value={prefsDraft.gender || ""} onValueChange={v => setPrefsDraft(d => ({
+                      ...d,
+                      gender: v as Profile["gender"]
+                    }))}>
+                      <SelectTrigger className="mt-1.5">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="dob">Date of birth</Label>
+                    <Input id="dob" type="date" value={prefsDraft.dateOfBirth} onChange={e => setPrefsDraft(d => ({
+                      ...d,
+                      dateOfBirth: e.target.value
+                    }))} aria-invalid={Boolean(prefsErrors.dateOfBirth)} className="mt-1.5" />
+                    {prefsErrors.dateOfBirth ? <p className="mt-1 text-xs text-destructive">{prefsErrors.dateOfBirth}</p> : null}
+                  </div>
+
+                  <div>
+                    <Label>Language</Label>
+                    <Select value={prefsDraft.languageCode} onValueChange={v => setPrefsDraft(d => ({
+                      ...d,
+                      languageCode: v as LanguageCode
+                    }))}>
+                      <SelectTrigger className="mt-1.5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languageOptions.map(l => (
+                          <SelectItem key={l.code} value={l.code}>
+                            {l.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-1 text-xs text-muted-foreground">Updates after save.</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Locations Card */}
+          <Card className="rounded-2xl border-border shadow-sm">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="text-foreground">Locations</CardTitle>
+                <CardDescription>Add multiple delivery locations and set one as primary.</CardDescription>
+              </div>
+
+              <Dialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={openAddLocation} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add location
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>{editingLocationId ? "Edit location" : "Add location"}</DialogTitle>
+                  </DialogHeader>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="label">Label</Label>
+                      <Input id="label" value={locationDraft.label} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        label: e.target.value
+                      }))} aria-invalid={Boolean(locationErrors.label)} placeholder="Home, Work, Mom's house" className="mt-1.5" />
+                      {locationErrors.label ? <p className="mt-1 text-xs text-destructive">{locationErrors.label}</p> : null}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="country">Country</Label>
+                      <Input id="country" value={locationDraft.country} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        country: e.target.value
+                      }))} aria-invalid={Boolean(locationErrors.country)} className="mt-1.5" />
+                      {locationErrors.country ? <p className="mt-1 text-xs text-destructive">{locationErrors.country}</p> : null}
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="address">Address</Label>
+                      <Input id="address" value={locationDraft.addressLine} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        addressLine: e.target.value
+                      }))} placeholder="Street, building, apartment" aria-invalid={Boolean(locationErrors.addressLine)} className="mt-1.5" />
+                      {locationErrors.addressLine ? <p className="mt-1 text-xs text-destructive">{locationErrors.addressLine}</p> : null}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input id="city" value={locationDraft.city} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        city: e.target.value
+                      }))} aria-invalid={Boolean(locationErrors.city)} className="mt-1.5" />
+                      {locationErrors.city ? <p className="mt-1 text-xs text-destructive">{locationErrors.city}</p> : null}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="region">Region</Label>
+                      <Input id="region" value={locationDraft.region} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        region: e.target.value
+                      }))} aria-invalid={Boolean(locationErrors.region)} className="mt-1.5" />
+                      {locationErrors.region ? <p className="mt-1 text-xs text-destructive">{locationErrors.region}</p> : null}
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="notes">Delivery notes</Label>
+                      <Textarea id="notes" value={locationDraft.notes} onChange={e => setLocationDraft(d => ({
+                        ...d,
+                        notes: e.target.value
+                      }))} placeholder="Optional" className="mt-1.5" />
+                      <p className="mt-1 text-xs text-muted-foreground">Keep it short. Driver instructions only.</p>
+                    </div>
+                  </div>
+
+                  <DialogFooter className="mt-2">
+                    <Button variant="outline" onClick={() => setLocationDialogOpen(false)} disabled={savingSection === "location"}>
+                      Cancel
+                    </Button>
+                    <Button onClick={saveLocation} disabled={savingSection === "location"}>
+                      {savingSection === "location" ? "Saving..." : "Save"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+
+            <CardContent>
+              {locations.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6">
+                  <div className="text-base font-medium text-foreground">No saved locations</div>
+                  <div className="mt-1 text-sm text-muted-foreground">Add a location for faster checkout and accurate delivery.</div>
+                  <Button className="mt-4 gap-2" onClick={openAddLocation}>
+                    <Plus className="h-4 w-4" />
+                    Add your first location
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {locations.map(l => (
+                    <div key={l.id} className="rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-sm">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <div className="text-base font-semibold text-foreground">{l.label}</div>
+                            {l.isPrimary ? (
+                              <Badge className="gap-1" variant="default">
+                                <Star className="h-3.5 w-3.5" />
+                                Primary
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">Saved</Badge>
+                            )}
+                          </div>
+
+                          <div className="mt-2 text-sm">
+                            <div className="text-muted-foreground">{l.addressLine}</div>
+                            <div className="text-muted-foreground">{l.city}, {l.region}, {l.country}</div>
+                            {l.notes ? <div className="mt-1 text-xs text-muted-foreground">Notes: {l.notes}</div> : null}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" size="sm" className="gap-2" onClick={() => openEditLocation(l)}>
+                            <Pencil className="h-4 w-4" />
+                            Edit
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditAddress(address);
-                          }}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteAddress(address.id);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                          {!l.isPrimary ? (
+                            <Button variant="outline" size="sm" className="gap-2" onClick={() => setPrimary(l.id)} disabled={savingSection === "location"}>
+                              <Star className="h-4 w-4" />
+                              Set primary
+                            </Button>
+                          ) : null}
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive" disabled={savingSection === "location"}>
+                                <Trash2 className="h-4 w-4" />
+                                Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove this location</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will remove the saved location from your account. You can add it again anytime.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => removeLocation(l.id)}>Remove</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
                     </div>
                   ))}
+
+                  <Separator />
+
+                  <div className="text-xs text-muted-foreground">Tip: Keep one primary location for the fastest checkout experience.</div>
                 </div>
-              </RadioGroup>
-            )}
-
-            {selectedAddress && (
-              <>
-                <Separator className="my-4" />
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground">Delivering to:</span>
-                  <span className="font-medium">{selectedAddress.label}</span>
-                  <span className="text-muted-foreground">- {selectedAddress.city}</span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Edit Profile Dialog */}
-        <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
-          <DialogContent className="rounded-2xl max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Profile</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Name</Label>
-                <Input
-                  value={tempProfile.name}
-                  onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={tempProfile.email}
-                  onChange={(e) => setTempProfile({ ...tempProfile, email: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Phone</Label>
-                <Input
-                  value={tempProfile.phone}
-                  onChange={(e) => setTempProfile({ ...tempProfile, phone: e.target.value })}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditProfileOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveProfile}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Address Dialog */}
-        <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
-          <DialogContent className="rounded-2xl max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editingAddress ? "Edit Address" : "Add Address"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Label (e.g., Home, Work)</Label>
-                <Input
-                  value={tempAddress.label ?? ""}
-                  onChange={(e) => setTempAddress({ ...tempAddress, label: e.target.value })}
-                  placeholder="Home"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Full Address</Label>
-                <Input
-                  value={tempAddress.fullAddress ?? ""}
-                  onChange={(e) => setTempAddress({ ...tempAddress, fullAddress: e.target.value })}
-                  placeholder="Street, Building, Floor"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>City</Label>
-                <Input
-                  value={tempAddress.city ?? ""}
-                  onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
-                  placeholder="Beirut"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isDefault"
-                  checked={tempAddress.isDefault ?? false}
-                  onChange={(e) => setTempAddress({ ...tempAddress, isDefault: e.target.checked })}
-                  className="rounded border-gray-300"
-                />
-                <Label htmlFor="isDefault" className="text-sm cursor-pointer">
-                  Set as default address
-                </Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setAddressDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveAddress}>
-                {editingAddress ? "Update" : "Add"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Address Confirmation */}
-        <AlertDialog open={deleteAddressOpen} onOpenChange={setDeleteAddressOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete address?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently remove this address from your saved locations.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDeleteAddress}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
