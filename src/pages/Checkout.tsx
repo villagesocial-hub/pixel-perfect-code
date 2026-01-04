@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ChevronLeft, CreditCard, Truck, MapPin, Check } from "lucide-react";
+import { ChevronLeft, CreditCard, Truck, MapPin, Check, Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useLocations, type Location } from "@/contexts/LocationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 type Step = "shipping" | "delivery" | "payment" | "review";
@@ -23,24 +27,35 @@ const shippingMethods = [
   { id: "overnight", name: "Overnight Shipping", time: "1 business day", price: 19.99 },
 ];
 
+function hasMin(value: string, n: number) {
+  return value.trim().length >= n;
+}
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, promoDiscount, clearCart } = useCart();
+  const { locations, selectedLocation, selectLocation, addLocation } = useLocations();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<Step>("shipping");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [shippingInfo, setShippingInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
+  // Add location dialog state
+  const [addLocationOpen, setAddLocationOpen] = useState(false);
+  const [locationDraft, setLocationDraft] = useState<Omit<Location, "id" | "isPrimary">>({
+    label: "Home",
+    addressLine: "",
     city: "",
-    state: "",
-    zip: "",
+    region: "",
     country: "United States",
+    notes: ""
   });
+  const [locationErrors, setLocationErrors] = useState<{
+    label?: string;
+    addressLine?: string;
+    city?: string;
+    region?: string;
+    country?: string;
+  }>({});
 
   const [selectedShipping, setSelectedShipping] = useState("standard");
   const [paymentInfo, setPaymentInfo] = useState({
@@ -59,6 +74,14 @@ const Checkout = () => {
   const stepIndex = steps.findIndex((s) => s.id === currentStep);
 
   const handleNext = () => {
+    if (currentStep === "shipping" && !selectedLocation) {
+      toast({
+        title: "Please select a delivery location",
+        description: "Choose from your saved locations or add a new one.",
+        variant: "destructive",
+      });
+      return;
+    }
     const nextIndex = stepIndex + 1;
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex].id);
@@ -74,12 +97,52 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    // Simulate order processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
     
     const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
     clearCart();
     navigate(`/order-success?order=${orderNumber}`);
+  };
+
+  const openAddLocation = () => {
+    setLocationDraft({
+      label: "Home",
+      addressLine: "",
+      city: "",
+      region: "",
+      country: "United States",
+      notes: ""
+    });
+    setLocationErrors({});
+    setAddLocationOpen(true);
+  };
+
+  const saveNewLocation = () => {
+    const errors: typeof locationErrors = {};
+    if (!hasMin(locationDraft.label, 2)) errors.label = "Add a label";
+    if (!hasMin(locationDraft.addressLine, 5)) errors.addressLine = "Enter an address";
+    if (!hasMin(locationDraft.city, 2)) errors.city = "Enter a city";
+    if (!hasMin(locationDraft.region, 2)) errors.region = "Enter a region";
+    if (!hasMin(locationDraft.country, 2)) errors.country = "Enter a country";
+    setLocationErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    const newId = addLocation({
+      label: locationDraft.label.trim(),
+      addressLine: locationDraft.addressLine.trim(),
+      city: locationDraft.city.trim(),
+      region: locationDraft.region.trim(),
+      country: locationDraft.country.trim(),
+      notes: locationDraft.notes.trim(),
+      isPrimary: locations.length === 0
+    });
+    
+    selectLocation(newId);
+    setAddLocationOpen(false);
+    toast({
+      title: "Location added",
+      description: "Your new location has been saved and selected.",
+    });
   };
 
   if (items.length === 0) {
@@ -130,91 +193,76 @@ const Checkout = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Form Section */}
         <div className="lg:col-span-2">
-          {/* Shipping Step */}
+          {/* Shipping Step - Location Selection */}
           {currentStep === "shipping" && (
             <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-bold text-foreground mb-6">Shipping Information</h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={shippingInfo.firstName}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, firstName: e.target.value })}
-                    placeholder="John"
-                  />
+              <h2 className="text-xl font-bold text-foreground mb-6">Select Delivery Location</h2>
+              
+              {locations.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
+                  <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <div className="text-base font-medium text-foreground">No saved locations</div>
+                  <div className="mt-1 text-sm text-muted-foreground">Add a delivery location to continue.</div>
+                  <Button className="mt-4 gap-2" onClick={openAddLocation}>
+                    <Plus className="h-4 w-4" />
+                    Add your first location
+                  </Button>
                 </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={shippingInfo.lastName}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, lastName: e.target.value })}
-                    placeholder="Doe"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={shippingInfo.email}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={shippingInfo.phone}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={shippingInfo.address}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                    placeholder="123 Main St"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    value={shippingInfo.city}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="state">State</Label>
-                  <Input
-                    id="state"
-                    value={shippingInfo.state}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
-                    placeholder="NY"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="zip">ZIP Code</Label>
-                  <Input
-                    id="zip"
-                    value={shippingInfo.zip}
-                    onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
-                    placeholder="10001"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="country">Country</Label>
-                  <Input id="country" value={shippingInfo.country} disabled />
-                </div>
-              </div>
+              ) : (
+                <>
+                  <RadioGroup 
+                    value={selectedLocation?.id || ""} 
+                    onValueChange={(id) => selectLocation(id)}
+                  >
+                    <div className="space-y-3">
+                      {locations.map((location) => (
+                        <div
+                          key={location.id}
+                          className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
+                            selectedLocation?.id === location.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                          onClick={() => selectLocation(location.id)}
+                        >
+                          <RadioGroupItem value={location.id} id={location.id} className="mt-1" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={location.id} className="font-semibold cursor-pointer">
+                                {location.label}
+                              </Label>
+                              {location.isPrimary && (
+                                <Badge variant="success" className="gap-1">
+                                  Primary
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {location.addressLine}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {location.city}, {location.region}, {location.country}
+                            </p>
+                            {location.notes && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Notes: {location.notes}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </RadioGroup>
+
+                  <Button variant="outline" className="mt-4 gap-2" onClick={openAddLocation}>
+                    <Plus className="h-4 w-4" />
+                    Add new location
+                  </Button>
+                </>
+              )}
+
               <div className="mt-6 flex justify-end">
-                <Button variant="cart" onClick={handleNext}>
+                <Button variant="cart" onClick={handleNext} disabled={!selectedLocation}>
                   Continue to Delivery
                 </Button>
               </div>
@@ -327,11 +375,17 @@ const Checkout = () => {
               {/* Shipping Address */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">Shipping To</h3>
-                <p className="text-foreground">
-                  {shippingInfo.firstName} {shippingInfo.lastName}<br />
-                  {shippingInfo.address}<br />
-                  {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}
-                </p>
+                {selectedLocation && (
+                  <div className="text-foreground">
+                    <p className="font-semibold">{selectedLocation.label}</p>
+                    <p>{selectedLocation.addressLine}</p>
+                    <p>{selectedLocation.city}, {selectedLocation.region}</p>
+                    <p>{selectedLocation.country}</p>
+                    {selectedLocation.notes && (
+                      <p className="text-sm text-muted-foreground mt-1">Notes: {selectedLocation.notes}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Delivery Method */}
@@ -424,6 +478,100 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Location Dialog */}
+      <Dialog open={addLocationOpen} onOpenChange={setAddLocationOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Add delivery location</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="loc-label">Label</Label>
+              <Input 
+                id="loc-label" 
+                value={locationDraft.label} 
+                onChange={e => setLocationDraft(d => ({ ...d, label: e.target.value }))} 
+                aria-invalid={Boolean(locationErrors.label)} 
+                placeholder="Home, Work, etc." 
+                className="mt-1.5" 
+              />
+              {locationErrors.label && <p className="mt-1 text-xs text-destructive">{locationErrors.label}</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="loc-country">Country</Label>
+              <Input 
+                id="loc-country" 
+                value={locationDraft.country} 
+                onChange={e => setLocationDraft(d => ({ ...d, country: e.target.value }))} 
+                aria-invalid={Boolean(locationErrors.country)} 
+                className="mt-1.5" 
+              />
+              {locationErrors.country && <p className="mt-1 text-xs text-destructive">{locationErrors.country}</p>}
+            </div>
+
+            <div className="sm:col-span-2">
+              <Label htmlFor="loc-address">Address</Label>
+              <Input 
+                id="loc-address" 
+                value={locationDraft.addressLine} 
+                onChange={e => setLocationDraft(d => ({ ...d, addressLine: e.target.value }))} 
+                placeholder="Street, building, apartment" 
+                aria-invalid={Boolean(locationErrors.addressLine)} 
+                className="mt-1.5" 
+              />
+              {locationErrors.addressLine && <p className="mt-1 text-xs text-destructive">{locationErrors.addressLine}</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="loc-city">City</Label>
+              <Input 
+                id="loc-city" 
+                value={locationDraft.city} 
+                onChange={e => setLocationDraft(d => ({ ...d, city: e.target.value }))} 
+                aria-invalid={Boolean(locationErrors.city)} 
+                className="mt-1.5" 
+              />
+              {locationErrors.city && <p className="mt-1 text-xs text-destructive">{locationErrors.city}</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="loc-region">Region</Label>
+              <Input 
+                id="loc-region" 
+                value={locationDraft.region} 
+                onChange={e => setLocationDraft(d => ({ ...d, region: e.target.value }))} 
+                aria-invalid={Boolean(locationErrors.region)} 
+                className="mt-1.5" 
+              />
+              {locationErrors.region && <p className="mt-1 text-xs text-destructive">{locationErrors.region}</p>}
+            </div>
+
+            <div className="sm:col-span-2">
+              <Label htmlFor="loc-notes">Delivery notes</Label>
+              <Textarea 
+                id="loc-notes" 
+                value={locationDraft.notes} 
+                onChange={e => setLocationDraft(d => ({ ...d, notes: e.target.value }))} 
+                placeholder="Optional" 
+                className="mt-1.5" 
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Driver instructions only.</p>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-2">
+            <Button variant="outline" onClick={() => setAddLocationOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveNewLocation}>
+              Save Location
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
