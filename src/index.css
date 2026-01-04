@@ -151,7 +151,7 @@
 
     --border: var(--neutral-200);
     --input: var(--neutral-200);
-    --ring: var(--orange-600);
+    --ring: var(--neutral-800);
 
     --radius: 0.375rem;
 
@@ -202,7 +202,7 @@
 
     --border: var(--neutral-700);
     --input: var(--neutral-700);
-    --ring: var(--orange-600);
+    --ring: var(--neutral-50);
 
     --sidebar-background: var(--neutral-900);
     --sidebar-foreground: var(--neutral-100);
