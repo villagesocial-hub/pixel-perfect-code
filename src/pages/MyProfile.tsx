@@ -105,10 +105,19 @@ function loadProfile(): Profile {
   try {
     const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (stored) {
-      return { ...defaultProfile, ...JSON.parse(stored) };
+      const merged = { ...defaultProfile, ...JSON.parse(stored) } as Profile;
+
+      // One-time migration: older demo profiles had a prefilled phone number.
+      // For email signup, keep phone empty unless the user explicitly set it.
+      if (merged.emailVerified && !merged.phoneVerified && merged.phone === "+961 70 123 456") {
+        merged.phone = "";
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(merged));
+      }
+
+      return merged;
     }
   } catch {
-    // Ignore parsing errors
+    // Ignore parsing/storage errors
   }
   return defaultProfile;
 }

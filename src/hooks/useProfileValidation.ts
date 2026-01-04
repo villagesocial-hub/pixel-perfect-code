@@ -34,7 +34,15 @@ function getStoredProfile(): StoredProfile {
   try {
     const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (stored) {
-      return { ...defaultProfile, ...JSON.parse(stored) };
+      const merged = { ...defaultProfile, ...JSON.parse(stored) } as StoredProfile;
+
+      // One-time migration: older demo profiles had a prefilled phone number.
+      if (merged.emailVerified && !merged.phoneVerified && merged.phone === "+961 70 123 456") {
+        merged.phone = "";
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(merged));
+      }
+
+      return merged;
     }
   } catch {
     // Ignore parsing errors
