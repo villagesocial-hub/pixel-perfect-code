@@ -156,10 +156,8 @@ export default function MyProfile() {
   const [verifying, setVerifying] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
 
-  // Generate a mock 6-digit code
-  const generateCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
+  // Fixed verification code for demo
+  const DEMO_CODE = "123456";
 
   const handleSendVerificationCode = async (type: "email" | "phone") => {
     const value = type === "email" ? profile.email : profile.phone;
@@ -168,15 +166,13 @@ export default function MyProfile() {
     // Simulate sending code
     await new Promise(r => setTimeout(r, 1000));
     
-    const code = generateCode();
-    setVerificationDialog({ open: true, type, value, code });
+    setVerificationDialog({ open: true, type, value, code: DEMO_CODE });
     setOtpValue("");
     setOtpError("");
     setCodeSent(true);
     setSendingCode(false);
     
-    // Show the code in a toast for demo purposes
-    showToast("Code Sent", `Demo code: ${code}`);
+    showToast("Code Sent", "Enter code: 123456");
   };
 
   const handleVerifyCode = async () => {
@@ -208,12 +204,11 @@ export default function MyProfile() {
     setSendingCode(true);
     await new Promise(r => setTimeout(r, 1000));
     
-    const code = generateCode();
-    setVerificationDialog(v => ({ ...v, code }));
+    setVerificationDialog(v => ({ ...v, code: DEMO_CODE }));
     setOtpValue("");
     setOtpError("");
     setSendingCode(false);
-    showToast("Code Resent", `Demo code: ${code}`);
+    showToast("Code Resent", "Enter code: 123456");
   };
 
   const profileCompletion = useMemo(() => {
