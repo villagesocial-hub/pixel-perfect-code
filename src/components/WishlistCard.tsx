@@ -206,12 +206,11 @@ export const WishlistCard = ({
           </Button>
           <Button
             variant="outline"
-            size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
+            size="icon"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-9 w-9"
             onClick={handleRemove}
           >
             <Trash2 className="w-4 h-4" />
-            Remove
           </Button>
         </div>
       </div>
