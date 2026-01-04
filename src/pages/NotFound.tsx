@@ -3,17 +3,8 @@ import { useEffect } from "react";
 import { Home, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const funnyMessages = [
-  "Looks like this page went on vacation... without telling anyone. 🏖️",
-  "This page is playing hide and seek. Spoiler: it's winning. 🙈",
-  "Houston, we have a problem. This page has left the building. 🚀",
-  "Plot twist: the page you're looking for doesn't exist. 😱",
-  "This page took a wrong turn at Albuquerque. 🗺️",
-];
-
 const NotFound = () => {
   const location = useLocation();
-  const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -21,61 +12,44 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="max-w-lg w-full text-center">
-        {/* Animated 404 */}
-        <div className="relative mb-6">
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[120px] sm:text-[150px] font-black text-foreground leading-none select-none animate-fade-in">
-              4
-            </span>
-            <div className="relative animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-foreground flex items-center justify-center bg-background">
-                <Search className="w-8 h-8 sm:w-12 sm:h-12 text-foreground animate-pulse" />
-              </div>
-            </div>
-            <span className="text-[120px] sm:text-[150px] font-black text-foreground leading-none select-none animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              4
-            </span>
+      <div className="max-w-md w-full text-center">
+        {/* 404 Number */}
+        <div className="relative mb-8">
+          <h1 className="text-[150px] font-bold text-primary/10 leading-none select-none">
+            404
+          </h1>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Search className="w-20 h-20 text-primary" />
           </div>
         </div>
 
-        {/* Title */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          Oops! Page Not Found
+        {/* Message */}
+        <h2 className="text-2xl font-semibold text-foreground mb-3">
+          Page not found
         </h2>
-
-        {/* Funny message */}
-        <p className="text-lg text-muted-foreground mb-2 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          {randomMessage}
-        </p>
-        
-        <p className="text-sm text-muted-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          Don't worry, even the best explorers get lost sometimes.
+        <p className="text-muted-foreground mb-8">
+          Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist.
         </p>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <Button 
-            variant="outline" 
-            className="gap-2 group"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Go back
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/" onClick={() => window.history.back()}>
+              <ArrowLeft className="w-4 h-4" />
+              Go back
+            </Link>
           </Button>
-          <Button asChild className="gap-2 group">
+          <Button asChild className="gap-2">
             <Link to="/">
-              <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              Take me home
+              <Home className="w-4 h-4" />
+              Back to home
             </Link>
           </Button>
         </div>
 
-        {/* Easter egg */}
-        <p className="mt-10 text-xs text-muted-foreground/60 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-          Error code: <code className="bg-muted px-2 py-1 rounded font-mono">{location.pathname}</code>
-          <br />
-          <span className="mt-2 inline-block">☕ Maybe grab a coffee while we figure this out?</span>
+        {/* Path info */}
+        <p className="mt-8 text-xs text-muted-foreground">
+          Requested path: <code className="bg-muted px-2 py-1 rounded">{location.pathname}</code>
         </p>
       </div>
     </div>
