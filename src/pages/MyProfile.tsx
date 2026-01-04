@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,22 +66,46 @@ const languageOptions: Array<{
   { code: "fr", label: "French" }
 ];
 
+const PROFILE_STORAGE_KEY = "user-profile";
+
+const defaultProfile: Profile = {
+  imageDataUrl: "",
+  firstName: "Antoun",
+  lastName: "El Morr",
+  email: "antoun@example.com",
+  emailVerified: true,
+  phone: "+961 70 123 456",
+  phoneVerified: false,
+  joiningDate: "2025-07-14T12:00:00.000Z",
+  gender: "",
+  dateOfBirth: "",
+  languageCode: "en"
+};
+
+function loadProfile(): Profile {
+  try {
+    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (stored) {
+      return { ...defaultProfile, ...JSON.parse(stored) };
+    }
+  } catch {
+    // Ignore parsing errors
+  }
+  return defaultProfile;
+}
+
+function saveProfileToStorage(profile: Profile) {
+  try {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export default function MyProfile() {
   const { locations, primaryLocation, addLocation, updateLocation, removeLocation, setPrimary } = useLocations();
 
-  const [profile, setProfile] = useState<Profile>({
-    imageDataUrl: "",
-    firstName: "Antoun",
-    lastName: "El Morr",
-    email: "antoun@example.com",
-    emailVerified: true,
-    phone: "+961 70 123 456",
-    phoneVerified: false,
-    joiningDate: "2025-07-14T12:00:00.000Z",
-    gender: "",
-    dateOfBirth: "",
-    languageCode: "en"
-  });
+  const [profile, setProfile] = useState<Profile>(loadProfile);
 
   const [identityEditing, setIdentityEditing] = useState(false);
   const [prefsEditing, setPrefsEditing] = useState(false);
@@ -131,6 +155,11 @@ export default function MyProfile() {
     const ok = checks.filter(Boolean).length;
     return Math.round(ok / checks.length * 100);
   }, [profile.firstName, profile.lastName, profile.email, profile.phone, locations]);
+
+  // Persist profile changes to localStorage
+  useEffect(() => {
+    saveProfileToStorage(profile);
+  }, [profile]);
 
   function showToast(title: string, message?: string) {
     setToast({ title, message });
