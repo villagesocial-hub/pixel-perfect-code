@@ -1089,92 +1089,98 @@ export default function MyProfile() {
           setExpiryCountdown(0);
         }
       }}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader className="text-center sm:text-center">
-            <DialogTitle className="text-lg">Enter verification code</DialogTitle>
-            <DialogDescription>
-              Sent to <span className="font-medium text-foreground">{verificationDialog.value}</span>
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-md p-6">
+          {/* Title */}
+          <h2 className="text-xl font-semibold text-foreground">
+            {resendCountdown < 60 && codeSent && resendCountdown === 0 ? "Verification code resent" : "Enter verification code"}
+          </h2>
+          
+          {/* Subtitle */}
+          <p className="text-sm text-muted-foreground mt-1">
+            We {resendCountdown < 60 && codeSent && resendCountdown === 0 ? "resent" : "sent"} a 6-digit code to {verificationDialog.value}.
+          </p>
 
-          <div className="flex flex-col items-center gap-5 py-4">
+          {/* Verification Code Label */}
+          <div className="mt-6">
+            <label className="text-sm font-medium text-foreground">Verification Code</label>
+            
             {/* OTP Input */}
-            <InputOTP
-              maxLength={6}
-              value={otpValue}
-              onChange={(value) => {
-                setOtpValue(value);
-                setOtpError("");
-              }}
-              disabled={expiryCountdown === 0}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
+            <div className="mt-3">
+              <InputOTP
+                maxLength={6}
+                value={otpValue}
+                onChange={(value) => {
+                  setOtpValue(value);
+                  setOtpError("");
+                }}
+                disabled={expiryCountdown === 0}
+              >
+                <InputOTPGroup className="gap-2 w-full justify-between">
+                  <InputOTPSlot index={0} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                  <InputOTPSlot index={1} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                  <InputOTPSlot index={2} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                  <InputOTPSlot index={3} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                  <InputOTPSlot index={4} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                  <InputOTPSlot index={5} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            {/* Helper text */}
+            <p className="text-sm text-muted-foreground mt-3">
+              Enter the 6-digit code sent to your {verificationDialog.type}.
+            </p>
 
             {/* Error */}
             {otpError && (
-              <p className="text-sm text-destructive">{otpError}</p>
+              <p className="text-sm text-destructive mt-2">{otpError}</p>
             )}
-
-            {/* Timers */}
-            <div className="text-center text-sm text-muted-foreground space-y-1">
-              {expiryCountdown > 0 ? (
-                <p>
-                  Expires in{" "}
-                  <span className={`font-mono font-medium ${expiryCountdown <= 30 ? "text-destructive" : "text-foreground"}`}>
-                    {Math.floor(expiryCountdown / 60)}:{(expiryCountdown % 60).toString().padStart(2, "0")}
-                  </span>
-                </p>
-              ) : (
-                <p className="text-destructive font-medium">Code expired</p>
-              )}
-              
-              {resendCountdown > 0 ? (
-                <p>
-                  Resend in <span className="font-mono font-medium text-foreground">{resendCountdown}s</span>
-                </p>
-              ) : (
-                <button
-                  type="button"
-                  className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  onClick={handleResendCode}
-                  disabled={sendingCode}
-                >
-                  {sendingCode ? "Sending..." : "Resend code"}
-                </button>
-              )}
-            </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              className="flex-1"
-              onClick={() => {
-                setVerificationDialog(v => ({ ...v, open: false }));
-                setCodeSent(false);
-                setOtpValue("");
-                setOtpError("");
-                setResendCountdown(0);
-                setExpiryCountdown(0);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              className="flex-1" 
-              onClick={handleVerifyCode} 
-              disabled={verifying || otpValue.length !== 6 || expiryCountdown === 0}
-            >
-              {verifying ? "Verifying..." : "Verify"}
-            </Button>
+          {/* Expiry Timer */}
+          <div className="flex items-center gap-2 mt-4">
+            <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            {expiryCountdown > 0 ? (
+              <span className="text-sm text-muted-foreground">
+                This code expires in{" "}
+                <span className="font-medium text-foreground">
+                  {Math.floor(expiryCountdown / 60)}:{(expiryCountdown % 60).toString().padStart(2, "0")}
+                </span>
+              </span>
+            ) : (
+              <span className="text-sm text-destructive font-medium">
+                This code expired 0:00
+              </span>
+            )}
+          </div>
+
+          {/* Verify Button */}
+          <Button 
+            className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white h-11 rounded-full font-medium"
+            onClick={handleVerifyCode} 
+            disabled={verifying || otpValue.length !== 6 || expiryCountdown === 0}
+          >
+            {verifying ? "Verifying..." : `Verify ${verificationDialog.type === "phone" ? "mobile number" : "email"}`}
+          </Button>
+
+          {/* Resend */}
+          <div className="text-center mt-4 text-sm text-muted-foreground">
+            Didn't receive the code?{" "}
+            {resendCountdown > 0 ? (
+              <span className="text-muted-foreground/60">Resend</span>
+            ) : (
+              <button
+                type="button"
+                className="font-medium text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
+                onClick={handleResendCode}
+                disabled={sendingCode}
+              >
+                {sendingCode ? "Sending..." : "Resend"}
+              </button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
