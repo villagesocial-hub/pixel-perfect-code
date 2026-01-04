@@ -5,6 +5,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import logo from "@/assets/logo.svg";
 
 export const Navbar = () => {
   const { getCartCount } = useCart();
@@ -13,21 +14,21 @@ export const Navbar = () => {
   const cartCount = getCartCount();
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border">
+    <header className="sticky top-0 z-50 bg-[hsl(var(--gray-900))] border-b border-gray-800">
       <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">
-          <h1 className="text-xl font-bold text-primary">ShopDeals</h1>
+          <img src={logo} alt="Kwixi" className="h-8" />
         </Link>
 
         {/* Search Bar - Desktop */}
         <div className="hidden md:flex flex-1 max-w-xl">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Search products..."
-              className="pl-10 pr-4 w-full bg-secondary border-0"
+              className="pl-10 pr-4 w-full bg-[hsl(var(--gray-800))] border-0 text-white placeholder:text-gray-400 rounded-full"
             />
           </div>
         </div>
@@ -38,7 +39,7 @@ export const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden text-white hover:bg-white/10 hover:text-white"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
           >
             <Search className="w-5 h-5" />
@@ -46,24 +47,24 @@ export const Navbar = () => {
 
           {/* Orders */}
           <Link to="/orders">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <Package className="w-5 h-5" />
             </Button>
           </Link>
 
           {/* Profile */}
           <Link to="/profile">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <User className="w-5 h-5" />
             </Button>
           </Link>
 
           {/* Wishlist */}
           <Link to="/wishlist">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <Heart className="w-5 h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-foreground text-background text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-white text-[hsl(var(--gray-900))] text-xs font-bold rounded-full flex items-center justify-center">
                   {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
               )}
@@ -72,7 +73,7 @@ export const Navbar = () => {
 
           {/* Cart */}
           <Link to="/cart">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
@@ -88,11 +89,11 @@ export const Navbar = () => {
       {isSearchOpen && (
         <div className="md:hidden px-4 pb-3">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Search products..."
-              className="pl-10 pr-4 w-full bg-secondary border-0"
+              className="pl-10 pr-4 w-full bg-[hsl(var(--gray-800))] border-0 text-white placeholder:text-gray-400 rounded-full"
               autoFocus
             />
           </div>
