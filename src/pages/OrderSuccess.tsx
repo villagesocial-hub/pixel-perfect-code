@@ -34,13 +34,13 @@ const OrderSuccess = () => {
   const orderNumber = searchParams.get("order") || "ORD-XXXXXX";
 
   return (
-    <div className="max-w-[800px] mx-auto px-4 py-12">
+    <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Success Message */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-save/10 rounded-full mb-6">
-          <CheckCircle className="w-12 h-12 text-save" />
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-save/10 rounded-full mb-4">
+          <CheckCircle className="w-10 h-10 text-save" />
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Order Confirmed!</h1>
+        <h1 className="text-2xl font-semibold text-foreground mb-2">Order Confirmed!</h1>
         <p className="text-muted-foreground mb-4">
           Thank you for your purchase. We've sent a confirmation email with your order details.
         </p>
@@ -53,8 +53,8 @@ const OrderSuccess = () => {
       </div>
 
       {/* Order Timeline */}
-      <div className="bg-card border border-border rounded-lg p-6 mb-8">
-        <h2 className="text-lg font-bold text-foreground mb-4">What's Next?</h2>
+      <div className="bg-card border border-border rounded-lg p-6 mb-6 max-w-2xl mx-auto">
+        <h2 className="text-lg font-semibold text-foreground mb-4">What's Next?</h2>
         <div className="space-y-4">
           <div className="flex gap-4">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -87,8 +87,8 @@ const OrderSuccess = () => {
       </div>
 
       {/* Recommendations */}
-      <div className="mb-8">
-        <h2 className="text-lg font-bold text-foreground mb-4">You Might Also Like</h2>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">You Might Also Like</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {recommendations.map((product) => (
             <div key={product.id} className="bg-card border border-border rounded-lg overflow-hidden">

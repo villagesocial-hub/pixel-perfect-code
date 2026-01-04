@@ -123,14 +123,14 @@ const Checkout = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Back Link */}
-      <Link to="/cart" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
+      <Link to="/cart" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
         <ChevronLeft className="w-4 h-4 mr-1" />
         Back to Cart
       </Link>
 
-      <h1 className="text-2xl font-bold text-foreground mb-6">Checkout</h1>
+      <h1 className="text-2xl font-semibold text-foreground mb-6">Checkout</h1>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}

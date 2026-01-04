@@ -103,11 +103,11 @@ export const TrendingDeals = () => {
   };
 
   return (
-    <section className="py-6">
+    <section className="py-2">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 px-4">
-        <h2 className="text-xl font-bold text-primary">Trending Deals</h2>
-        <button className="text-sm text-foreground hover:text-primary transition-colors">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-primary">Trending Deals</h2>
+        <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
           View all
         </button>
       </div>
@@ -129,7 +129,7 @@ export const TrendingDeals = () => {
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className="flex gap-4 overflow-x-auto px-4 py-2 scroll-smooth"
+          className="flex gap-4 overflow-x-auto py-2 scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
         >
           {products.map((product, index) => (
@@ -155,7 +155,7 @@ export const TrendingDeals = () => {
       </div>
 
       {/* Progress Bar */}
-      <div className="mt-4 px-4">
+      <div className="mt-4">
         <div className="h-1 bg-border rounded-full max-w-md">
           <div className="h-1 bg-foreground rounded-full w-1/3" />
         </div>

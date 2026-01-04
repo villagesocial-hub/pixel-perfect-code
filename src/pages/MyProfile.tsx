@@ -366,18 +366,18 @@ export default function MyProfile() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto w-full max-w-5xl px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Profile</h1>
+            <h1 className="text-2xl font-semibold text-foreground">My Profile</h1>
             <p className="text-sm text-muted-foreground">Manage your identity, preferences, and saved locations.</p>
           </div>
         </div>
 
         {/* Toast */}
         {toast ? (
-          <div className="mt-4 animate-fade-in rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+          <div className="mb-6 animate-fade-in rounded-lg border border-border bg-card px-4 py-3 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 rounded-full border border-primary/20 bg-primary/10 p-1">
                 <Check className="h-4 w-4 text-primary" />
@@ -390,7 +390,7 @@ export default function MyProfile() {
           </div>
         ) : null}
 
-        <div className="mt-6 grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {/* Identity Card */}
           <Card className="rounded-2xl border-border shadow-sm">
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
