@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { WishlistGrid } from "@/components/WishlistGrid";
+import { ProductSection } from "@/components/ProductSection";
+import { similarSuggestions, recommendedForYou, browsingHistory } from "@/data/sample-products";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,6 +82,21 @@ const Wishlist = () => {
 
         {/* Grid */}
         <WishlistGrid />
+
+        {/* Similar Suggestions */}
+        <div className="mt-8">
+          <ProductSection title="Similar Suggestions" products={similarSuggestions} />
+        </div>
+
+        {/* Recommended For You */}
+        <div className="mt-8">
+          <ProductSection title="Recommended For You" products={recommendedForYou} />
+        </div>
+
+        {/* Your Browsing History */}
+        <div className="mt-8">
+          <ProductSection title="Your Browsing History" products={browsingHistory} />
+        </div>
       </div>
     </div>
   );
