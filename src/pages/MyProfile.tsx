@@ -550,6 +550,18 @@ export default function MyProfile() {
             <h1 className="text-2xl font-semibold text-foreground">My Profile</h1>
             <p className="text-sm text-muted-foreground">Manage your identity, preferences, and saved locations.</p>
           </div>
+          {/* Reset Profile Button - for testing */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={() => {
+              localStorage.removeItem("user-profile");
+              window.location.reload();
+            }}
+          >
+            Reset Profile (Testing)
+          </Button>
         </div>
 
         {/* Toast */}
