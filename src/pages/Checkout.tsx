@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ChevronLeft, MapPin, Plus, Banknote, Store } from "lucide-react";
+import { ChevronLeft, MapPin, Plus, Banknote, Store, Truck } from "lucide-react";
+import { addDays, format } from "date-fns";
 import { useCart } from "@/contexts/CartContext";
 import { useLocations, type Location } from "@/contexts/LocationContext";
 import { useOrders } from "@/contexts/OrdersContext";
@@ -14,6 +15,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useProfileValidation } from "@/hooks/useProfileValidation";
 import { ProfileValidationDialog } from "@/components/ProfileValidationDialog";
+
+function getEstimatedDeliveryDate(): string {
+  const today = new Date();
+  const deliveryDate = addDays(today, 5); // 5 business days estimate
+  return format(deliveryDate, "EEE, MMM d");
+}
 
 function hasMin(value: string, n: number) {
   return value.trim().length >= n;
@@ -311,6 +318,15 @@ const Checkout = () => {
         <div className="lg:col-span-1">
           <div className="bg-card border border-border rounded-lg p-6 sticky top-20">
             <h2 className="text-lg font-bold text-foreground mb-4">Order Summary</h2>
+
+            {/* Estimated Delivery */}
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg mb-4">
+              <Truck className="w-5 h-5 text-foreground" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Estimated Delivery</p>
+                <p className="text-sm text-muted-foreground">Get it by {getEstimatedDeliveryDate()}</p>
+              </div>
+            </div>
             
             {/* Totals */}
             <div className="space-y-3">

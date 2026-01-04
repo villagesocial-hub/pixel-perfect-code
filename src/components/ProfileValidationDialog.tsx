@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AlertTriangle, MapPin, Phone, Mail, User } from "lucide-react";
+import { AlertTriangle, MapPin, Phone, Mail, User, Calendar, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-type MissingField = "location" | "contact" | "phone" | "email";
+type MissingField = "location" | "contact" | "phone" | "email" | "firstName" | "lastName" | "gender" | "dateOfBirth";
 
 interface ProfileValidationDialogProps {
   open: boolean;
@@ -19,6 +19,16 @@ interface ProfileValidationDialogProps {
 }
 
 const fieldConfig: Record<MissingField, { icon: React.ElementType; label: string; description: string }> = {
+  firstName: {
+    icon: User,
+    label: "First Name",
+    description: "Add your first name",
+  },
+  lastName: {
+    icon: User,
+    label: "Last Name",
+    description: "Add your last name",
+  },
   location: {
     icon: MapPin,
     label: "Delivery Location",
@@ -38,6 +48,16 @@ const fieldConfig: Record<MissingField, { icon: React.ElementType; label: string
     icon: Mail,
     label: "Email Address",
     description: "Add your email for order confirmations",
+  },
+  gender: {
+    icon: Users,
+    label: "Gender",
+    description: "Select your gender",
+  },
+  dateOfBirth: {
+    icon: Calendar,
+    label: "Date of Birth",
+    description: "Add your date of birth",
   },
 };
 
@@ -66,8 +86,8 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields }: P
                 key={field}
                 className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30"
               >
-                <div className="p-1.5 rounded-md bg-primary/10">
-                  <Icon className="h-4 w-4 text-primary" />
+                <div className="p-1.5 rounded-md bg-foreground/10">
+                  <Icon className="h-4 w-4 text-foreground" />
                 </div>
                 <div>
                   <p className="font-medium text-sm text-foreground">{config.label}</p>

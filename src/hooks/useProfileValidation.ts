@@ -3,23 +3,31 @@ import { useLocations } from "@/contexts/LocationContext";
 
 // This hook checks if the user's profile has enough data to place an order
 
-type MissingField = "location" | "contact" | "phone" | "email";
+type MissingField = "location" | "contact" | "phone" | "email" | "firstName" | "lastName" | "gender" | "dateOfBirth";
 
 const PROFILE_STORAGE_KEY = "user-profile";
 
 interface StoredProfile {
+  firstName?: string;
+  lastName?: string;
   email?: string;
   phone?: string;
   emailVerified?: boolean;
   phoneVerified?: boolean;
+  gender?: string;
+  dateOfBirth?: string;
 }
 
 // Default profile values (matching MyProfile.tsx defaults)
 const defaultProfile: StoredProfile = {
+  firstName: "Antoun",
+  lastName: "El Morr",
   email: "antoun@example.com",
   phone: "+961 70 123 456",
   emailVerified: true,
   phoneVerified: false,
+  gender: "",
+  dateOfBirth: "",
 };
 
 function getStoredProfile(): StoredProfile {
@@ -49,6 +57,16 @@ export function useProfileValidation() {
     const profile = getStoredProfile();
     const missingFields: MissingField[] = [];
 
+    // Check for first name
+    if (!hasMinLength(profile.firstName, 2)) {
+      missingFields.push("firstName");
+    }
+
+    // Check for last name
+    if (!hasMinLength(profile.lastName, 2)) {
+      missingFields.push("lastName");
+    }
+
     // Check for location - need at least one location
     const hasLocation = locations.length > 0;
     if (!hasLocation) {
@@ -61,6 +79,16 @@ export function useProfileValidation() {
     
     if (!hasEmail && !hasPhone) {
       missingFields.push("contact");
+    }
+
+    // Check for gender
+    if (!hasMinLength(profile.gender, 1)) {
+      missingFields.push("gender");
+    }
+
+    // Check for date of birth
+    if (!hasMinLength(profile.dateOfBirth, 1)) {
+      missingFields.push("dateOfBirth");
     }
 
     return {
