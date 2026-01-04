@@ -143,11 +143,35 @@ export function ReviewDialog({
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed p-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <ImageIcon className="h-4 w-4" /> Add photos to make your review more credible.
+              <label
+                className="rounded-2xl border-2 border-dashed p-6 cursor-pointer hover:border-foreground/50 hover:bg-accent/50 transition-colors block"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add("border-foreground", "bg-accent/50");
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.classList.remove("border-foreground", "bg-accent/50");
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove("border-foreground", "bg-accent/50");
+                  if (e.dataTransfer.files?.length) {
+                    onAddImages(e.dataTransfer.files);
+                  }
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => onAddImages(e.target.files)}
+                />
+                <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                  <ImageIcon className="h-8 w-8" />
+                  <span>Drag & drop photos here or click to browse</span>
                 </div>
-              </div>
+              </label>
             )}
           </div>
         </div>
