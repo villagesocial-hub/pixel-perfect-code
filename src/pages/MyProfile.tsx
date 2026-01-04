@@ -554,18 +554,6 @@ export default function MyProfile() {
                       {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
                       <p className="mt-1 text-xs text-muted-foreground">Changing phone requires verification.</p>
                     </div>
-
-                    <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5 rounded-full border border-border p-1">
-                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-foreground">Photo preview</div>
-                          <div className="text-xs text-muted-foreground">Your new photo will apply after you save.</div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
