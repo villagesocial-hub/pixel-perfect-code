@@ -1098,9 +1098,9 @@ export default function MyProfile() {
                 : "Enter verification code"}
             </h2>
             
-            {/* Subtitle */}
+            {/* Subtitle with recipient */}
             <p className="text-sm text-muted-foreground mt-1.5">
-              We {resendCountdown === 0 && codeSent && expiryCountdown > 0 ? "resent" : "sent"} a 6-digit code to your {verificationDialog.type}.
+              We {resendCountdown === 0 && codeSent && expiryCountdown > 0 ? "resent" : "sent"} a 6-digit code to {verificationDialog.value}.
             </p>
           </div>
 
@@ -1119,40 +1119,40 @@ export default function MyProfile() {
                 }}
                 disabled={expiryCountdown === 0}
               >
-                <InputOTPGroup className="w-full">
+                <InputOTPGroup className="gap-0">
                   <InputOTPSlot 
                     index={0} 
-                    className={`h-12 flex-1 rounded-none rounded-l-lg border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none rounded-l-lg border border-r-0 bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
                   <InputOTPSlot 
                     index={1} 
-                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
                   <InputOTPSlot 
                     index={2} 
-                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
                   <InputOTPSlot 
                     index={3} 
-                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
                   <InputOTPSlot 
                     index={4} 
-                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
                   <InputOTPSlot 
                     index={5} 
-                    className={`h-12 flex-1 rounded-none rounded-r-lg border bg-muted/50 text-lg font-semibold transition-all
+                    className={`h-11 w-11 rounded-none rounded-r-lg border bg-muted/50 text-lg font-semibold transition-all
                       ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
                       ${otpError ? "border-destructive" : "border-border"}`} 
                   />
