@@ -165,12 +165,12 @@ const Cart = () => {
                 </div>
               )}
 
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground flex items-center gap-1">
+              <div className="flex justify-between text-sm bg-secondary px-3 py-2 rounded-lg">
+                <span className="text-muted-foreground flex items-center gap-1.5">
                   <Truck className="w-4 h-4" />
                   Shipping
                 </span>
-                <span className="text-foreground">
+                <span className="text-foreground font-medium">
                   {shipping === 0 ? (
                     <span className="text-save">FREE</span>
                   ) : (
