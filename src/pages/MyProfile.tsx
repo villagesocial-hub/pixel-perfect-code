@@ -858,47 +858,45 @@ export default function MyProfile() {
                         </div>
                       ) : (
                         <div className="mt-1.5">
-                          <div className="flex flex-col gap-2 sm:flex-row">
-                            <div className="flex gap-2 flex-1">
-                              <CountryCodeSelect
-                                value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
-                                onValueChange={(code) => {
-                                  const currentNumber = getPhoneWithoutCode(identityDraft.phone);
-                                  setIdentityDraft(d => ({
-                                    ...d,
-                                    phone: formatFullPhone(code, currentNumber)
-                                  }));
-                                }}
-                              />
-                              <Input 
-                                id="phone" 
-                                value={getPhoneWithoutCode(identityDraft.phone)} 
-                                onChange={e => {
-                                  const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
-                                  const number = sanitizePhoneNumber(e.target.value);
-                                  setIdentityDraft(d => ({
-                                    ...d,
-                                    phone: formatFullPhone(code, number)
-                                  }));
-                                }} 
-                                placeholder="Phone number"
-                                aria-invalid={Boolean(identityErrors.phone)} 
-                                autoComplete="tel" 
-                                className="flex-1" 
-                              />
-                            </div>
-                            <Button 
-                              type="button"
-                              variant="outline" 
-                              size="sm" 
-                              className="gap-1 shrink-0 w-full sm:w-auto"
-                              onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
-                              disabled={sendingCode || !hasMin(getPhoneWithoutCode(identityDraft.phone), 6)}
-                            >
-                              <ShieldCheck className="h-4 w-4" />
-                              {sendingCode ? "Sending..." : "Verify"}
-                            </Button>
+                          <div className="flex gap-2">
+                            <CountryCodeSelect
+                              value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
+                              onValueChange={(code) => {
+                                const currentNumber = getPhoneWithoutCode(identityDraft.phone);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: formatFullPhone(code, currentNumber)
+                                }));
+                              }}
+                            />
+                            <Input 
+                              id="phone" 
+                              value={getPhoneWithoutCode(identityDraft.phone)} 
+                              onChange={e => {
+                                const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
+                                const number = sanitizePhoneNumber(e.target.value);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: formatFullPhone(code, number)
+                                }));
+                              }} 
+                              placeholder="Phone number"
+                              aria-invalid={Boolean(identityErrors.phone)} 
+                              autoComplete="tel" 
+                              className="flex-1 min-w-0" 
+                            />
                           </div>
+                          <Button 
+                            type="button"
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-1 w-full mt-2"
+                            onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
+                            disabled={sendingCode || !hasMin(getPhoneWithoutCode(identityDraft.phone), 6)}
+                          >
+                            <ShieldCheck className="h-4 w-4" />
+                            {sendingCode ? "Sending..." : "Verify Phone"}
+                          </Button>
                           {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
                           <p className="mt-1 text-xs text-muted-foreground">Click Verify to confirm your phone.</p>
                         </div>
