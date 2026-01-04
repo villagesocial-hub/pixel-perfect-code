@@ -19,6 +19,7 @@ export default function OrdersReviewsPage() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
   const [reviewRating, setReviewRating] = useState<number>(0);
+  const [reviewTitle, setReviewTitle] = useState<string>("");
   const [reviewText, setReviewText] = useState<string>("");
   const [reviewImages, setReviewImages] = useState<string[]>([]);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -59,6 +60,7 @@ export default function OrdersReviewsPage() {
   const hydrateReviewModal = useCallback((t: ReviewTarget) => {
     const existing = getExistingReviewPayload(t);
     setReviewRating(existing?.rating ?? 0);
+    setReviewTitle(existing?.title ?? "");
     setReviewText(existing?.text ?? "");
     setReviewImages(existing?.images ?? []);
   }, [getExistingReviewPayload]);
@@ -100,6 +102,7 @@ export default function OrdersReviewsPage() {
     const value = Math.max(0, Math.min(5, Number(reviewRating)));
     const payload: ReviewPayload = {
       rating: value,
+      title: reviewTitle.trim() || undefined,
       text: reviewText.trim() || undefined,
       images: reviewImages.length ? reviewImages : undefined,
       updatedAt: nowStamp()
@@ -113,7 +116,7 @@ export default function OrdersReviewsPage() {
     
     setReviewOpen(false);
     setReviewTarget(null);
-  }, [reviewTarget, orders, reviewRating, reviewText, reviewImages, updateOrderReview, updateItemReview]);
+  }, [reviewTarget, orders, reviewRating, reviewTitle, reviewText, reviewImages, updateOrderReview, updateItemReview]);
 
   const requestDelete = useCallback((t: DeleteTarget) => {
     setDeleteTarget(t);
@@ -152,6 +155,7 @@ export default function OrdersReviewsPage() {
     if (!open) {
       setReviewTarget(null);
       setReviewRating(0);
+      setReviewTitle("");
       setReviewText("");
       setReviewImages([]);
     }
@@ -229,10 +233,12 @@ export default function OrdersReviewsPage() {
           onOpenChange={handleReviewDialogOpenChange}
           target={reviewTarget}
           rating={reviewRating}
+          title={reviewTitle}
           text={reviewText}
           images={reviewImages}
           existingReview={reviewTarget ? getExistingReviewPayload(reviewTarget) : undefined}
           onRatingChange={setReviewRating}
+          onTitleChange={setReviewTitle}
           onTextChange={setReviewText}
           onAddImages={pickImages}
           onRemoveImage={removeImage}

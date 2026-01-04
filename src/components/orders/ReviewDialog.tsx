@@ -18,10 +18,12 @@ interface ReviewDialogProps {
   onOpenChange: (open: boolean) => void;
   target: ReviewTarget | null;
   rating: number;
+  title: string;
   text: string;
   images: string[];
   existingReview: ReviewPayload | undefined;
   onRatingChange: (rating: number) => void;
+  onTitleChange: (title: string) => void;
   onTextChange: (text: string) => void;
   onAddImages: (files: FileList | null) => void;
   onRemoveImage: (url: string) => void;
@@ -34,10 +36,12 @@ export function ReviewDialog({
   onOpenChange,
   target,
   rating,
+  title,
   text,
   images,
   existingReview,
   onRatingChange,
+  onTitleChange,
   onTextChange,
   onAddImages,
   onRemoveImage,
@@ -91,11 +95,26 @@ export function ReviewDialog({
             </div>
           </div>
 
-          {/* Text Review Section */}
+          {/* Review Title Section */}
           <div className="rounded-2xl border p-4 space-y-3">
             <div>
-              <div className="text-sm font-semibold">Your review</div>
-              <div className="text-sm text-muted-foreground">Short, specific feedback builds trust.</div>
+              <div className="text-sm font-semibold">Summary</div>
+              <div className="text-sm text-muted-foreground">A brief headline for your review.</div>
+            </div>
+            <Input
+              value={title}
+              onChange={(e) => onTitleChange(e.target.value)}
+              placeholder="e.g., Great quality, fast delivery!"
+              className="rounded-xl"
+              maxLength={100}
+            />
+          </div>
+
+          {/* Review Details Section */}
+          <div className="rounded-2xl border p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold">Details</div>
+              <div className="text-sm text-muted-foreground">Share what you liked or what could be better.</div>
             </div>
             <Textarea
               value={text}

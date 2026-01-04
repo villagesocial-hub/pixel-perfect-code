@@ -11,6 +11,7 @@ export type OrderStatus =
 
 export type ReviewPayload = {
   rating: number;
+  title?: string;
   text?: string;
   images?: string[];
   updatedAt: string;
