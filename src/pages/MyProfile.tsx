@@ -575,16 +575,9 @@ export default function MyProfile() {
                             <Check className="h-3 w-3" /> Verified
                           </Badge>
                         ) : (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-7 text-xs gap-1"
-                            onClick={() => handleSendVerificationCode("email")}
-                            disabled={sendingCode}
-                          >
-                            <ShieldCheck className="h-3 w-3" />
-                            {sendingCode ? "Sending..." : "Verify"}
-                          </Button>
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            Not verified
+                          </Badge>
                         )}
                       </div>
                     </div>
@@ -598,16 +591,9 @@ export default function MyProfile() {
                             <Check className="h-3 w-3" /> Verified
                           </Badge>
                         ) : (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-7 text-xs gap-1"
-                            onClick={() => handleSendVerificationCode("phone")}
-                            disabled={sendingCode}
-                          >
-                            <ShieldCheck className="h-3 w-3" />
-                            {sendingCode ? "Sending..." : "Verify"}
-                          </Button>
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            Not verified
+                          </Badge>
                         )}
                       </div>
                     </div>
@@ -670,14 +656,34 @@ export default function MyProfile() {
                           )}
                         </div>
                       ) : (
-                        <>
-                          <Input id="email" value={identityDraft.email} onChange={e => setIdentityDraft(d => ({
-                            ...d,
-                            email: e.target.value
-                          }))} aria-invalid={Boolean(identityErrors.email)} autoComplete="email" className="mt-1.5" />
+                        <div className="mt-1.5">
+                          <div className="flex gap-2">
+                            <Input 
+                              id="email" 
+                              value={identityDraft.email} 
+                              onChange={e => setIdentityDraft(d => ({
+                                ...d,
+                                email: e.target.value
+                              }))} 
+                              aria-invalid={Boolean(identityErrors.email)} 
+                              autoComplete="email" 
+                              className="flex-1" 
+                            />
+                            <Button 
+                              type="button"
+                              variant="outline" 
+                              size="sm" 
+                              className="gap-1 shrink-0"
+                              onClick={() => handleSendVerificationCode("email")}
+                              disabled={sendingCode || !isEmail(identityDraft.email)}
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              {sendingCode ? "Sending..." : "Verify"}
+                            </Button>
+                          </div>
                           {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
-                          <p className="mt-1 text-xs text-muted-foreground">Email requires verification.</p>
-                        </>
+                          <p className="mt-1 text-xs text-muted-foreground">Click Verify to confirm your email.</p>
+                        </div>
                       )}
                     </div>
 
@@ -712,14 +718,34 @@ export default function MyProfile() {
                           )}
                         </div>
                       ) : (
-                        <>
-                          <Input id="phone" value={identityDraft.phone} onChange={e => setIdentityDraft(d => ({
-                            ...d,
-                            phone: sanitizePhone(e.target.value)
-                          }))} aria-invalid={Boolean(identityErrors.phone)} autoComplete="tel" className="mt-1.5" />
+                        <div className="mt-1.5">
+                          <div className="flex gap-2">
+                            <Input 
+                              id="phone" 
+                              value={identityDraft.phone} 
+                              onChange={e => setIdentityDraft(d => ({
+                                ...d,
+                                phone: sanitizePhone(e.target.value)
+                              }))} 
+                              aria-invalid={Boolean(identityErrors.phone)} 
+                              autoComplete="tel" 
+                              className="flex-1" 
+                            />
+                            <Button 
+                              type="button"
+                              variant="outline" 
+                              size="sm" 
+                              className="gap-1 shrink-0"
+                              onClick={() => handleSendVerificationCode("phone")}
+                              disabled={sendingCode || !hasMin(identityDraft.phone, 6)}
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              {sendingCode ? "Sending..." : "Verify"}
+                            </Button>
+                          </div>
                           {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
-                          <p className="mt-1 text-xs text-muted-foreground">Phone requires verification.</p>
-                        </>
+                          <p className="mt-1 text-xs text-muted-foreground">Click Verify to confirm your phone.</p>
+                        </div>
                       )}
                     </div>
                   </div>
