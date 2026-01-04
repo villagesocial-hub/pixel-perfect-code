@@ -78,12 +78,12 @@ export function CountryCodeSelect({ value, onValueChange, disabled }: CountryCod
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className="w-[120px] justify-between px-3 font-normal shrink-0"
+          className="w-[100px] sm:w-[120px] justify-between px-2 sm:px-3 font-normal shrink-0"
         >
           <span className="truncate">
             {selectedCountry.flag} {selectedCountry.code}
           </span>
-          <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-0" align="start">
