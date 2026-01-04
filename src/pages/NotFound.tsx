@@ -1,6 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Home, ArrowLeft, Search } from "lucide-react";
+import { Home, ArrowLeft, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -19,7 +19,7 @@ const NotFound = () => {
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Search className="w-20 h-20 text-primary" />
+            <SearchX className="w-20 h-20 text-primary" />
           </div>
         </div>
 
