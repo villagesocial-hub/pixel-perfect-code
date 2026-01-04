@@ -1,6 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Home, ArrowLeft, Ban } from "lucide-react";
+import { Home, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -13,11 +13,14 @@ const NotFound = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
-        {/* 4 0 4 with rotating Ban icon */}
-        <div className="mb-8 flex items-center justify-center gap-2">
-          <span className="text-8xl font-bold text-foreground">4</span>
-          <Ban className="w-24 h-24 text-destructive animate-spin" style={{ animationDuration: '10s' }} />
-          <span className="text-8xl font-bold text-foreground">4</span>
+        {/* 404 Number */}
+        <div className="relative mb-8">
+          <h1 className="text-[150px] font-bold text-primary/10 leading-none select-none">
+            404
+          </h1>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Search className="w-20 h-20 text-primary" />
+          </div>
         </div>
 
         {/* Message */}
