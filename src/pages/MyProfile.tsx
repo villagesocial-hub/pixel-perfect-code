@@ -536,22 +536,86 @@ export default function MyProfile() {
 
                     <div>
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" value={identityDraft.email} onChange={e => setIdentityDraft(d => ({
-                        ...d,
-                        email: e.target.value
-                      }))} aria-invalid={Boolean(identityErrors.email)} autoComplete="email" className="mt-1.5" />
-                      {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
-                      <p className="mt-1 text-xs text-muted-foreground">Changing email requires verification.</p>
+                      {profile.emailVerified ? (
+                        <div className="mt-1.5">
+                          <div className="flex items-center gap-2 p-2.5 bg-muted/50 border border-border rounded-md">
+                            <span className="text-sm text-muted-foreground flex-1">{profile.email}</span>
+                            <Badge variant="success" className="gap-1 text-xs">
+                              <Check className="h-3 w-3" /> Verified
+                            </Badge>
+                          </div>
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+                            To change your verified email, enter a new one below:
+                          </p>
+                          <Input 
+                            id="email" 
+                            value={identityDraft.email === profile.email ? "" : identityDraft.email} 
+                            onChange={e => setIdentityDraft(d => ({
+                              ...d,
+                              email: e.target.value || profile.email
+                            }))} 
+                            placeholder="Enter new email"
+                            aria-invalid={Boolean(identityErrors.email)} 
+                            autoComplete="email" 
+                            className="mt-1.5" 
+                          />
+                          {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
+                          {identityDraft.email !== profile.email && identityDraft.email && (
+                            <p className="mt-1 text-xs text-amber-600">New email will require verification after saving.</p>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <Input id="email" value={identityDraft.email} onChange={e => setIdentityDraft(d => ({
+                            ...d,
+                            email: e.target.value
+                          }))} aria-invalid={Boolean(identityErrors.email)} autoComplete="email" className="mt-1.5" />
+                          {identityErrors.email ? <p className="mt-1 text-xs text-destructive">{identityErrors.email}</p> : null}
+                          <p className="mt-1 text-xs text-muted-foreground">Email requires verification.</p>
+                        </>
+                      )}
                     </div>
 
                     <div>
                       <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" value={identityDraft.phone} onChange={e => setIdentityDraft(d => ({
-                        ...d,
-                        phone: sanitizePhone(e.target.value)
-                      }))} aria-invalid={Boolean(identityErrors.phone)} autoComplete="tel" className="mt-1.5" />
-                      {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
-                      <p className="mt-1 text-xs text-muted-foreground">Changing phone requires verification.</p>
+                      {profile.phoneVerified ? (
+                        <div className="mt-1.5">
+                          <div className="flex items-center gap-2 p-2.5 bg-muted/50 border border-border rounded-md">
+                            <span className="text-sm text-muted-foreground flex-1">{profile.phone}</span>
+                            <Badge variant="success" className="gap-1 text-xs">
+                              <Check className="h-3 w-3" /> Verified
+                            </Badge>
+                          </div>
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+                            To change your verified phone, enter a new one below:
+                          </p>
+                          <Input 
+                            id="phone" 
+                            value={identityDraft.phone === profile.phone ? "" : identityDraft.phone} 
+                            onChange={e => setIdentityDraft(d => ({
+                              ...d,
+                              phone: sanitizePhone(e.target.value) || profile.phone
+                            }))} 
+                            placeholder="Enter new phone"
+                            aria-invalid={Boolean(identityErrors.phone)} 
+                            autoComplete="tel" 
+                            className="mt-1.5" 
+                          />
+                          {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
+                          {identityDraft.phone !== profile.phone && identityDraft.phone && (
+                            <p className="mt-1 text-xs text-amber-600">New phone will require verification after saving.</p>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <Input id="phone" value={identityDraft.phone} onChange={e => setIdentityDraft(d => ({
+                            ...d,
+                            phone: sanitizePhone(e.target.value)
+                          }))} aria-invalid={Boolean(identityErrors.phone)} autoComplete="tel" className="mt-1.5" />
+                          {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
+                          <p className="mt-1 text-xs text-muted-foreground">Phone requires verification.</p>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
