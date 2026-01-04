@@ -62,8 +62,7 @@ const languageOptions: Array<{
   label: string;
 }> = [
   { code: "en", label: "English" },
-  { code: "ar", label: "Arabic" },
-  { code: "fr", label: "French" }
+  { code: "ar", label: "Arabic" }
 ];
 
 const PROFILE_STORAGE_KEY = "user-profile";
