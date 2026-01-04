@@ -41,7 +41,7 @@ const Checkout = () => {
   const { locations, selectedLocation, selectLocation, addLocation } = useLocations();
   const { addOrder } = useOrders();
   const { toast } = useToast();
-  const { isValid: isProfileValid, missingFields } = useProfileValidation();
+  const { isValid: isProfileValid, missingFields, refresh: refreshValidation } = useProfileValidation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showProfileValidation, setShowProfileValidation] = useState(false);
 
@@ -484,7 +484,8 @@ const Checkout = () => {
         onOpenChange={setShowProfileValidation}
         missingFields={missingFields}
         onComplete={() => {
-          // Re-trigger order placement after completing profile
+          // Refresh validation to pick up saved changes from localStorage
+          refreshValidation();
           setShowProfileValidation(false);
         }}
       />

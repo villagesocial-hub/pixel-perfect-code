@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useLocations } from "@/contexts/LocationContext";
 
 // This hook checks if the user's profile has enough data to place an order
@@ -60,6 +60,11 @@ function isValidEmail(value: string | undefined): boolean {
 
 export function useProfileValidation() {
   const { locations, selectedLocation } = useLocations();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshKey(k => k + 1);
+  }, []);
 
   const validation = useMemo(() => {
     const profile = getStoredProfile();
@@ -113,7 +118,7 @@ export function useProfileValidation() {
       hasEmail,
       hasPhone,
     };
-  }, [locations, selectedLocation]);
+  }, [locations, selectedLocation, refreshKey]);
 
-  return validation;
+  return { ...validation, refresh };
 }
