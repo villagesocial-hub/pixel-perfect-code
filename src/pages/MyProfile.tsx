@@ -661,32 +661,32 @@ export default function MyProfile() {
                       <div className="font-medium text-foreground">{profile.lastName}</div>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="font-medium text-foreground">{profile.email}</span>
+                      <div className="flex items-center gap-2 mt-1 min-w-0">
+                        <span className="font-medium text-foreground truncate">{profile.email}</span>
                         {profile.emailVerified ? (
-                          <Badge variant="success" className="gap-1 text-xs">
+                          <Badge variant="success" className="gap-1 text-xs shrink-0">
                             <Check className="h-3 w-3" /> Verified
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                          <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">
                             Not verified
                           </Badge>
                         )}
                       </div>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-sm text-muted-foreground">Phone</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="font-medium text-foreground">{profile.phone}</span>
+                      <div className="flex items-center gap-2 mt-1 min-w-0">
+                        <span className="font-medium text-foreground truncate">{profile.phone}</span>
                         {profile.phoneVerified ? (
-                          <Badge variant="success" className="gap-1 text-xs">
+                          <Badge variant="success" className="gap-1 text-xs shrink-0">
                             <Check className="h-3 w-3" /> Verified
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                          <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">
                             Not verified
                           </Badge>
                         )}
@@ -858,38 +858,40 @@ export default function MyProfile() {
                         </div>
                       ) : (
                         <div className="mt-1.5">
-                          <div className="flex gap-2">
-                            <CountryCodeSelect
-                              value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
-                              onValueChange={(code) => {
-                                const currentNumber = getPhoneWithoutCode(identityDraft.phone);
-                                setIdentityDraft(d => ({
-                                  ...d,
-                                  phone: formatFullPhone(code, currentNumber)
-                                }));
-                              }}
-                            />
-                            <Input 
-                              id="phone" 
-                              value={getPhoneWithoutCode(identityDraft.phone)} 
-                              onChange={e => {
-                                const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
-                                const number = sanitizePhoneNumber(e.target.value);
-                                setIdentityDraft(d => ({
-                                  ...d,
-                                  phone: formatFullPhone(code, number)
-                                }));
-                              }} 
-                              placeholder="Phone number"
-                              aria-invalid={Boolean(identityErrors.phone)} 
-                              autoComplete="tel" 
-                              className="flex-1" 
-                            />
+                          <div className="flex flex-col gap-2 sm:flex-row">
+                            <div className="flex gap-2 flex-1">
+                              <CountryCodeSelect
+                                value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
+                                onValueChange={(code) => {
+                                  const currentNumber = getPhoneWithoutCode(identityDraft.phone);
+                                  setIdentityDraft(d => ({
+                                    ...d,
+                                    phone: formatFullPhone(code, currentNumber)
+                                  }));
+                                }}
+                              />
+                              <Input 
+                                id="phone" 
+                                value={getPhoneWithoutCode(identityDraft.phone)} 
+                                onChange={e => {
+                                  const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
+                                  const number = sanitizePhoneNumber(e.target.value);
+                                  setIdentityDraft(d => ({
+                                    ...d,
+                                    phone: formatFullPhone(code, number)
+                                  }));
+                                }} 
+                                placeholder="Phone number"
+                                aria-invalid={Boolean(identityErrors.phone)} 
+                                autoComplete="tel" 
+                                className="flex-1" 
+                              />
+                            </div>
                             <Button 
                               type="button"
                               variant="outline" 
                               size="sm" 
-                              className="gap-1 shrink-0"
+                              className="gap-1 shrink-0 w-full sm:w-auto"
                               onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
                               disabled={sendingCode || !hasMin(getPhoneWithoutCode(identityDraft.phone), 6)}
                             >
