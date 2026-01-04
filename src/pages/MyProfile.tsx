@@ -1138,9 +1138,6 @@ export default function MyProfile() {
                     </div>
                   ))}
 
-                  <Separator />
-
-                  <div className="text-xs text-muted-foreground">Tip: Keep one primary location for the fastest checkout experience.</div>
                 </div>
               )}
             </CardContent>
