@@ -819,12 +819,12 @@ export default function MyProfile() {
                                 }));
                               }}
                             >
-                              <SelectTrigger className="w-[140px] shrink-0">
+                              <SelectTrigger className="w-[110px] shrink-0">
                                 <SelectValue>
                                   {(() => {
                                     const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
                                     const country = countryCodes.find(c => c.code === code);
-                                    return country ? `${country.flag} ${country.country}` : code;
+                                    return country ? `${country.flag} ${country.code}` : code;
                                   })()}
                                 </SelectValue>
                               </SelectTrigger>
@@ -884,12 +884,12 @@ export default function MyProfile() {
                                 }));
                               }}
                             >
-                              <SelectTrigger className="w-[140px] shrink-0">
+                              <SelectTrigger className="w-[110px] shrink-0">
                                 <SelectValue>
                                   {(() => {
                                     const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
                                     const country = countryCodes.find(c => c.code === code);
-                                    return country ? `${country.flag} ${country.country}` : code;
+                                    return country ? `${country.flag} ${country.code}` : code;
                                   })()}
                                 </SelectValue>
                               </SelectTrigger>
