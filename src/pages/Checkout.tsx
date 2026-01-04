@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useProfileValidation } from "@/hooks/useProfileValidation";
+import { ProfileValidationDialog } from "@/components/ProfileValidationDialog";
 
 function hasMin(value: string, n: number) {
   return value.trim().length >= n;
@@ -32,7 +34,9 @@ const Checkout = () => {
   const { locations, selectedLocation, selectLocation, addLocation } = useLocations();
   const { addOrder } = useOrders();
   const { toast } = useToast();
+  const { isValid: isProfileValid, missingFields } = useProfileValidation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showProfileValidation, setShowProfileValidation] = useState(false);
 
   // Add location dialog state
   const [addLocationOpen, setAddLocationOpen] = useState(false);
@@ -59,6 +63,12 @@ const Checkout = () => {
   const total = subtotal - discount + shippingCost + tax;
 
   const handlePlaceOrder = async () => {
+    // First check if profile has required info
+    if (!isProfileValid) {
+      setShowProfileValidation(true);
+      return;
+    }
+
     if (!selectedLocation) {
       toast({
         title: "Please select a delivery location",
@@ -445,6 +455,13 @@ const Checkout = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Profile Validation Dialog */}
+      <ProfileValidationDialog
+        open={showProfileValidation}
+        onOpenChange={setShowProfileValidation}
+        missingFields={missingFields}
+      />
     </div>
   );
 };
