@@ -821,36 +821,41 @@ export default function MyProfile() {
                                 }));
                               }}
                             />
-                            <Input 
-                              id="phone" 
-                              value={identityDraft.phone === profile.phone ? "" : getPhoneWithoutCode(identityDraft.phone)} 
-                              onChange={e => {
-                                const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
-                                const number = sanitizePhoneNumber(e.target.value);
-                                setIdentityDraft(d => ({
-                                  ...d,
-                                  phone: number ? formatFullPhone(code, number) : profile.phone
-                                }));
-                              }} 
-                              placeholder="Phone number"
-                              aria-invalid={Boolean(identityErrors.phone)} 
-                              autoComplete="tel" 
-                              className="flex-1" 
-                            />
-                            {identityDraft.phone !== profile.phone && identityDraft.phone && hasMin(getPhoneWithoutCode(identityDraft.phone), 6) && (
-                              <Button 
-                                type="button"
-                                variant="outline" 
-                                size="sm" 
-                                className="gap-1 shrink-0"
-                                onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
-                                disabled={sendingCode}
-                              >
-                                <ShieldCheck className="h-4 w-4" />
-                                {sendingCode ? "Sending..." : "Verify"}
-                              </Button>
-                            )}
+                            <div className="flex-1 flex items-center border border-input rounded-md bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                              <span className="pl-3 pr-1 text-sm text-muted-foreground select-none">
+                                {getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone)}
+                              </span>
+                              <input 
+                                id="phone" 
+                                value={identityDraft.phone === profile.phone ? "" : getPhoneWithoutCode(identityDraft.phone)} 
+                                onChange={e => {
+                                  const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
+                                  const number = sanitizePhoneNumber(e.target.value);
+                                  setIdentityDraft(d => ({
+                                    ...d,
+                                    phone: number ? formatFullPhone(code, number) : profile.phone
+                                  }));
+                                }} 
+                                placeholder="Phone number"
+                                aria-invalid={Boolean(identityErrors.phone)} 
+                                autoComplete="tel" 
+                                className="flex-1 h-10 bg-transparent py-2 pr-3 text-sm outline-none placeholder:text-muted-foreground" 
+                              />
+                            </div>
                           </div>
+                          {identityDraft.phone !== profile.phone && identityDraft.phone && hasMin(getPhoneWithoutCode(identityDraft.phone), 6) && (
+                            <Button 
+                              type="button"
+                              variant="outline" 
+                              size="sm" 
+                              className="gap-1 w-full mt-2"
+                              onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
+                              disabled={sendingCode}
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              {sendingCode ? "Sending..." : "Verify Phone"}
+                            </Button>
+                          )}
                           {identityErrors.phone ? <p className="mt-1 text-xs text-destructive">{identityErrors.phone}</p> : null}
                           {identityDraft.phone !== profile.phone && identityDraft.phone && (
                             <p className="mt-1 text-xs text-amber-600">Click Verify to confirm your new phone.</p>
@@ -869,22 +874,27 @@ export default function MyProfile() {
                                 }));
                               }}
                             />
-                            <Input 
-                              id="phone" 
-                              value={getPhoneWithoutCode(identityDraft.phone)} 
-                              onChange={e => {
-                                const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
-                                const number = sanitizePhoneNumber(e.target.value);
-                                setIdentityDraft(d => ({
-                                  ...d,
-                                  phone: formatFullPhone(code, number)
-                                }));
-                              }} 
-                              placeholder="Phone number"
-                              aria-invalid={Boolean(identityErrors.phone)} 
-                              autoComplete="tel" 
-                              className="flex-1 min-w-0" 
-                            />
+                            <div className="flex-1 flex items-center border border-input rounded-md bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                              <span className="pl-3 pr-1 text-sm text-muted-foreground select-none">
+                                {getCountryCodeFromPhone(identityDraft.phone || "+961")}
+                              </span>
+                              <input 
+                                id="phone" 
+                                value={getPhoneWithoutCode(identityDraft.phone)} 
+                                onChange={e => {
+                                  const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
+                                  const number = sanitizePhoneNumber(e.target.value);
+                                  setIdentityDraft(d => ({
+                                    ...d,
+                                    phone: formatFullPhone(code, number)
+                                  }));
+                                }} 
+                                placeholder="Phone number"
+                                aria-invalid={Boolean(identityErrors.phone)} 
+                                autoComplete="tel" 
+                                className="flex-1 h-10 bg-transparent py-2 pr-3 text-sm outline-none placeholder:text-muted-foreground" 
+                              />
+                            </div>
                           </div>
                           <Button 
                             type="button"
