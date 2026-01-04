@@ -57,7 +57,7 @@ const NotFound = () => {
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">
-            <SearchX className="w-20 h-20 text-foreground" />
+            <SearchX className="w-20 h-20 text-gray-700" />
           </div>
         </div>
 
