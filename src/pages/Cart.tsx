@@ -62,8 +62,8 @@ const Cart = () => {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-foreground mb-6">
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-semibold text-foreground mb-6">
         Shopping Cart ({totalQuantity} {totalQuantity === 1 ? "item" : "items"})
       </h1>
 

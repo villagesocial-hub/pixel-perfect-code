@@ -186,19 +186,19 @@ export default function OrdersReviewsPage() {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-6xl p-4 md:p-6">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           {/* Header */}
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-2xl font-semibold">Orders & Reviews</h1>
+              <h1 className="text-2xl font-semibold text-foreground">Orders & Reviews</h1>
               <p className="text-sm text-muted-foreground">
                 Order history, downloads, and reviews in one place.
               </p>
             </div>
 
-            <div className="relative w-full md:w-[360px]">
+            <div className="relative w-full md:w-[320px]">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search order number, status, or item" className="pl-9 rounded-xl" />
+              <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search orders..." className="pl-9" />
             </div>
           </div>
 
