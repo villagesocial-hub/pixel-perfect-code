@@ -635,7 +635,7 @@ export default function MyProfile() {
 
                   <div>
                     <Label htmlFor="dob">Date of birth</Label>
-                    <Input id="dob" type="date" value={prefsDraft.dateOfBirth} onChange={e => setPrefsDraft(d => ({
+                    <Input id="dob" type="date" value={prefsDraft.dateOfBirth} max={new Date().toISOString().split('T')[0]} onChange={e => setPrefsDraft(d => ({
                       ...d,
                       dateOfBirth: e.target.value
                     }))} aria-invalid={Boolean(prefsErrors.dateOfBirth)} className="mt-1.5" />
@@ -676,7 +676,7 @@ export default function MyProfile() {
 
               <Dialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={openAddLocation} className="gap-2">
+                  <Button onClick={openAddLocation} variant="outline" className="gap-2">
                     <Plus className="h-4 w-4" />
                     Add location
                   </Button>
