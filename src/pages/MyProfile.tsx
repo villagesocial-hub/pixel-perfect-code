@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Check, Pencil, Plus, Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
+import { useLocations, type Location } from "@/contexts/LocationContext";
 
 type LanguageCode = "en" | "ar" | "fr";
 
@@ -28,17 +29,6 @@ type Profile = {
   languageCode: LanguageCode;
 };
 
-type Location = {
-  id: string;
-  label: string;
-  addressLine: string;
-  city: string;
-  region: string;
-  country: string;
-  notes: string;
-  isPrimary: boolean;
-};
-
 function formatJoinDate(iso: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
@@ -53,10 +43,6 @@ function initials(firstName: string, lastName: string) {
   const a = (firstName || "").trim().slice(0, 1);
   const b = (lastName || "").trim().slice(0, 1);
   return (a + b).toUpperCase() || "U";
-}
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
 }
 
 function sanitizePhone(value: string) {
@@ -81,6 +67,8 @@ const languageOptions: Array<{
 ];
 
 export default function MyProfile() {
+  const { locations, primaryLocation, addLocation, updateLocation, removeLocation, setPrimary } = useLocations();
+
   const [profile, setProfile] = useState<Profile>({
     imageDataUrl: "",
     firstName: "Antoun",
@@ -94,19 +82,6 @@ export default function MyProfile() {
     dateOfBirth: "",
     languageCode: "en"
   });
-
-  const [locations, setLocations] = useState<Location[]>([
-    {
-      id: uid(),
-      label: "Home",
-      addressLine: "Hamra, Bliss Street, Building 12",
-      city: "Beirut",
-      region: "Beirut",
-      country: "Lebanon",
-      notes: "Call on arrival",
-      isPrimary: true
-    }
-  ]);
 
   const [identityEditing, setIdentityEditing] = useState(false);
   const [prefsEditing, setPrefsEditing] = useState(false);
@@ -143,8 +118,6 @@ export default function MyProfile() {
 
   const [savingSection, setSavingSection] = useState<"identity" | "prefs" | "location" | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const primaryLocation = useMemo(() => locations.find(l => l.isPrimary), [locations]);
 
   const profileCompletion = useMemo(() => {
     const checks = [
@@ -256,27 +229,18 @@ export default function MyProfile() {
     showToast("Saved", "Preferences updated.");
   }
 
-  async function setPrimary(id: string) {
+  async function handleSetPrimary(id: string) {
     setSavingSection("location");
     await new Promise(r => setTimeout(r, 450));
-    setLocations(prev => prev.map(l => ({
-      ...l,
-      isPrimary: l.id === id
-    })));
+    setPrimary(id);
     setSavingSection(null);
     showToast("Updated", "Primary location set.");
   }
 
-  async function removeLocation(id: string) {
-    const target = locations.find(l => l.id === id);
-    if (!target) return;
-    const remaining = locations.filter(l => l.id !== id);
-    if (target.isPrimary && remaining.length) {
-      remaining[0] = { ...remaining[0], isPrimary: true };
-    }
+  async function handleRemoveLocation(id: string) {
     setSavingSection("location");
     await new Promise(r => setTimeout(r, 450));
-    setLocations(remaining);
+    removeLocation(id);
     setSavingSection(null);
     showToast("Removed", "Location removed.");
   }
@@ -341,15 +305,14 @@ export default function MyProfile() {
     await new Promise(r => setTimeout(r, 600));
 
     if (editingLocationId) {
-      setLocations(prev => prev.map(l => l.id === editingLocationId ? {
-        ...l,
+      updateLocation(editingLocationId, {
         label: locationDraft.label.trim(),
         addressLine: locationDraft.addressLine.trim(),
         city: locationDraft.city.trim(),
         region: locationDraft.region.trim(),
         country: locationDraft.country.trim(),
         notes: locationDraft.notes.trim()
-      } : l));
+      });
       setSavingSection(null);
       setLocationDialogOpen(false);
       showToast("Saved", "Location updated.");
@@ -357,8 +320,7 @@ export default function MyProfile() {
     }
 
     const isFirst = locations.length === 0;
-    setLocations(prev => [...prev, {
-      id: uid(),
+    addLocation({
       label: locationDraft.label.trim(),
       addressLine: locationDraft.addressLine.trim(),
       city: locationDraft.city.trim(),
@@ -366,7 +328,7 @@ export default function MyProfile() {
       country: locationDraft.country.trim(),
       notes: locationDraft.notes.trim(),
       isPrimary: isFirst
-    }]);
+    });
 
     setSavingSection(null);
     setLocationDialogOpen(false);
@@ -497,6 +459,16 @@ export default function MyProfile() {
 
                 {!identityEditing ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <div className="text-sm text-muted-foreground">First name</div>
+                      <div className="font-medium text-foreground">{profile.firstName}</div>
+                    </div>
+
+                    <div>
+                      <div className="text-sm text-muted-foreground">Last name</div>
+                      <div className="font-medium text-foreground">{profile.lastName}</div>
+                    </div>
+
                     <div>
                       <div className="text-sm text-muted-foreground">Email</div>
                       <div className="font-medium text-foreground">{profile.email}</div>
@@ -772,7 +744,7 @@ export default function MyProfile() {
                           <div className="flex items-center gap-2">
                             <div className="text-base font-semibold text-foreground">{l.label}</div>
                             {l.isPrimary ? (
-                              <Badge className="gap-1" variant="default">
+                              <Badge className="gap-1" variant="success">
                                 <Star className="h-3.5 w-3.5" />
                                 Primary
                               </Badge>
@@ -794,7 +766,7 @@ export default function MyProfile() {
                             Edit
                           </Button>
                           {!l.isPrimary ? (
-                            <Button variant="outline" size="sm" className="gap-2" onClick={() => setPrimary(l.id)} disabled={savingSection === "location"}>
+                            <Button variant="outline" size="sm" className="gap-2" onClick={() => handleSetPrimary(l.id)} disabled={savingSection === "location"}>
                               <Star className="h-4 w-4" />
                               Set primary
                             </Button>
@@ -816,7 +788,7 @@ export default function MyProfile() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => removeLocation(l.id)}>Remove</AlertDialogAction>
+                                <AlertDialogAction onClick={() => handleRemoveLocation(l.id)}>Remove</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>

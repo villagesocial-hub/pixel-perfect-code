@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { LocationProvider } from "@/contexts/LocationContext";
 import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
 import Cart from "./pages/Cart";
@@ -22,22 +23,24 @@ const App = () => (
     <TooltipProvider>
       <CartProvider>
         <WishlistProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/orders" element={<OrdersReviews />} />
-              <Route path="/profile" element={<MyProfile />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <LocationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/orders" element={<OrdersReviews />} />
+                <Route path="/profile" element={<MyProfile />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </LocationProvider>
         </WishlistProvider>
       </CartProvider>
     </TooltipProvider>

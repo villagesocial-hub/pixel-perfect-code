@@ -9,7 +9,7 @@ export function formatMoney(value: number) {
 }
 
 export function statusTone(status: OrderStatus) {
-  if (status === "Delivered") return "default" as const;
+  if (status === "Delivered") return "success" as const;
   if (status === "Delivery failed" || status === "Cancelled") return "destructive" as const;
   if (status === "On the way" || status === "Out for delivery") return "secondary" as const;
   return "outline" as const;
