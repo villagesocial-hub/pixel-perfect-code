@@ -1089,23 +1089,27 @@ export default function MyProfile() {
           setExpiryCountdown(0);
         }
       }}>
-        <DialogContent className="sm:max-w-md p-6">
-          {/* Title */}
-          <h2 className="text-xl font-semibold text-foreground">
-            {resendCountdown < 60 && codeSent && resendCountdown === 0 ? "Verification code resent" : "Enter verification code"}
-          </h2>
-          
-          {/* Subtitle */}
-          <p className="text-sm text-muted-foreground mt-1">
-            We {resendCountdown < 60 && codeSent && resendCountdown === 0 ? "resent" : "sent"} a 6-digit code to {verificationDialog.value}.
-          </p>
+        <DialogContent className="sm:max-w-[420px] p-0 gap-0 overflow-hidden">
+          <div className="p-6 pb-0">
+            {/* Title - changes based on state */}
+            <h2 className="text-xl font-bold text-foreground tracking-tight">
+              {resendCountdown === 0 && codeSent && expiryCountdown > 0 
+                ? "Verification code resent" 
+                : "Enter verification code"}
+            </h2>
+            
+            {/* Subtitle */}
+            <p className="text-sm text-muted-foreground mt-1.5">
+              We {resendCountdown === 0 && codeSent && expiryCountdown > 0 ? "resent" : "sent"} a 6-digit code to your {verificationDialog.type}.
+            </p>
+          </div>
 
-          {/* Verification Code Label */}
-          <div className="mt-6">
+          <div className="p-6 pt-5">
+            {/* Verification Code Label */}
             <label className="text-sm font-medium text-foreground">Verification Code</label>
             
-            {/* OTP Input */}
-            <div className="mt-3">
+            {/* OTP Input - connected boxes */}
+            <div className="mt-2.5">
               <InputOTP
                 maxLength={6}
                 value={otpValue}
@@ -1115,72 +1119,108 @@ export default function MyProfile() {
                 }}
                 disabled={expiryCountdown === 0}
               >
-                <InputOTPGroup className="gap-2 w-full justify-between">
-                  <InputOTPSlot index={0} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
-                  <InputOTPSlot index={1} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
-                  <InputOTPSlot index={2} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
-                  <InputOTPSlot index={3} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
-                  <InputOTPSlot index={4} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
-                  <InputOTPSlot index={5} className="h-12 w-12 rounded-lg border-0 bg-muted text-lg font-medium" />
+                <InputOTPGroup className="w-full">
+                  <InputOTPSlot 
+                    index={0} 
+                    className={`h-12 flex-1 rounded-none rounded-l-lg border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
+                  <InputOTPSlot 
+                    index={1} 
+                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
+                  <InputOTPSlot 
+                    index={2} 
+                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
+                  <InputOTPSlot 
+                    index={3} 
+                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
+                  <InputOTPSlot 
+                    index={4} 
+                    className={`h-12 flex-1 rounded-none border border-r-0 bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
+                  <InputOTPSlot 
+                    index={5} 
+                    className={`h-12 flex-1 rounded-none rounded-r-lg border bg-muted/50 text-lg font-semibold transition-all
+                      ${expiryCountdown === 0 ? "opacity-50 bg-muted/30" : ""}
+                      ${otpError ? "border-destructive" : "border-border"}`} 
+                  />
                 </InputOTPGroup>
               </InputOTP>
             </div>
 
             {/* Helper text */}
-            <p className="text-sm text-muted-foreground mt-3">
+            <p className="text-[13px] text-muted-foreground mt-2.5">
               Enter the 6-digit code sent to your {verificationDialog.type}.
             </p>
 
             {/* Error */}
             {otpError && (
-              <p className="text-sm text-destructive mt-2">{otpError}</p>
+              <p className="text-sm text-destructive mt-2 font-medium">{otpError}</p>
             )}
-          </div>
 
-          {/* Expiry Timer */}
-          <div className="flex items-center gap-2 mt-4">
-            <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-            {expiryCountdown > 0 ? (
-              <span className="text-sm text-muted-foreground">
-                This code expires in{" "}
-                <span className="font-medium text-foreground">
-                  {Math.floor(expiryCountdown / 60)}:{(expiryCountdown % 60).toString().padStart(2, "0")}
-                </span>
-              </span>
-            ) : (
-              <span className="text-sm text-destructive font-medium">
-                This code expired 0:00
-              </span>
-            )}
-          </div>
-
-          {/* Verify Button */}
-          <Button 
-            className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white h-11 rounded-full font-medium"
-            onClick={handleVerifyCode} 
-            disabled={verifying || otpValue.length !== 6 || expiryCountdown === 0}
-          >
-            {verifying ? "Verifying..." : `Verify ${verificationDialog.type === "phone" ? "mobile number" : "email"}`}
-          </Button>
-
-          {/* Resend */}
-          <div className="text-center mt-4 text-sm text-muted-foreground">
-            Didn't receive the code?{" "}
-            {resendCountdown > 0 ? (
-              <span className="text-muted-foreground/60">Resend</span>
-            ) : (
-              <button
-                type="button"
-                className="font-medium text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
-                onClick={handleResendCode}
-                disabled={sendingCode}
+            {/* Expiry Timer */}
+            <div className="flex items-center gap-1.5 mt-4">
+              <svg 
+                className={`h-4 w-4 ${expiryCountdown === 0 ? "text-destructive" : "text-muted-foreground"}`} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
               >
-                {sendingCode ? "Sending..." : "Resend"}
-              </button>
-            )}
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              {expiryCountdown > 0 ? (
+                <span className={`text-sm ${expiryCountdown <= 30 ? "text-destructive" : "text-muted-foreground"}`}>
+                  This code expires in{" "}
+                  <span className={`font-semibold ${expiryCountdown <= 30 ? "text-destructive" : "text-foreground"}`}>
+                    {Math.floor(expiryCountdown / 60)}:{(expiryCountdown % 60).toString().padStart(2, "0")}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-sm text-destructive font-medium">
+                  This code expired <span className="font-semibold">0:00</span>
+                </span>
+              )}
+            </div>
+
+            {/* Verify Button */}
+            <Button 
+              className="w-full mt-5 bg-primary hover:bg-primary/90 text-primary-foreground h-12 rounded-full font-semibold text-[15px] shadow-sm transition-all disabled:opacity-40"
+              onClick={handleVerifyCode} 
+              disabled={verifying || otpValue.length !== 6 || expiryCountdown === 0}
+            >
+              {verifying ? "Verifying..." : `Verify ${verificationDialog.type === "phone" ? "mobile number" : "email"}`}
+            </Button>
+
+            {/* Resend */}
+            <p className="text-center mt-5 text-sm text-muted-foreground">
+              Didn't receive the code?{" "}
+              {resendCountdown > 0 ? (
+                <span className="text-muted-foreground/50 cursor-not-allowed">Resend</span>
+              ) : (
+                <button
+                  type="button"
+                  className="font-semibold text-foreground underline underline-offset-2 hover:text-primary transition-colors disabled:opacity-50"
+                  onClick={handleResendCode}
+                  disabled={sendingCode}
+                >
+                  {sendingCode ? "Sending..." : "Resend"}
+                </button>
+              )}
+            </p>
           </div>
         </DialogContent>
       </Dialog>
