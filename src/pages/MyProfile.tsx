@@ -819,13 +819,19 @@ export default function MyProfile() {
                                 }));
                               }}
                             >
-                              <SelectTrigger className="w-[100px] shrink-0">
-                                <SelectValue />
+                              <SelectTrigger className="w-[140px] shrink-0">
+                                <SelectValue>
+                                  {(() => {
+                                    const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
+                                    const country = countryCodes.find(c => c.code === code);
+                                    return country ? `${country.flag} ${country.country}` : code;
+                                  })()}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {countryCodes.map(c => (
                                   <SelectItem key={c.code} value={c.code}>
-                                    {c.flag} {c.code}
+                                    {c.flag} {c.country} ({c.code})
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -878,13 +884,19 @@ export default function MyProfile() {
                                 }));
                               }}
                             >
-                              <SelectTrigger className="w-[100px] shrink-0">
-                                <SelectValue />
+                              <SelectTrigger className="w-[140px] shrink-0">
+                                <SelectValue>
+                                  {(() => {
+                                    const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
+                                    const country = countryCodes.find(c => c.code === code);
+                                    return country ? `${country.flag} ${country.country}` : code;
+                                  })()}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {countryCodes.map(c => (
                                   <SelectItem key={c.code} value={c.code}>
-                                    {c.flag} {c.code}
+                                    {c.flag} {c.country} ({c.code})
                                   </SelectItem>
                                 ))}
                               </SelectContent>
