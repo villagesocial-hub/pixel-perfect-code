@@ -1,7 +1,20 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Home, ArrowLeft, SearchX } from "lucide-react";
+import { Home, ArrowLeft, SearchX, ShoppingBag, Package, Box, Tag, CreditCard, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const floatingIcons = [
+  { Icon: ShoppingBag, className: "top-[15%] left-[8%] w-8 h-8 rotate-[-15deg]" },
+  { Icon: Package, className: "top-[25%] right-[10%] w-10 h-10 rotate-[20deg]" },
+  { Icon: Box, className: "bottom-[30%] left-[12%] w-7 h-7 rotate-[10deg]" },
+  { Icon: Tag, className: "top-[40%] left-[5%] w-6 h-6 rotate-[-25deg]" },
+  { Icon: CreditCard, className: "bottom-[20%] right-[8%] w-9 h-9 rotate-[15deg]" },
+  { Icon: Truck, className: "top-[20%] left-[15%] w-8 h-8 rotate-[-5deg] hidden sm:block" },
+  { Icon: ShoppingBag, className: "bottom-[40%] right-[12%] w-6 h-6 rotate-[-20deg]" },
+  { Icon: Package, className: "bottom-[15%] left-[6%] w-10 h-10 rotate-[25deg]" },
+  { Icon: Box, className: "top-[35%] right-[6%] w-7 h-7 rotate-[-10deg]" },
+  { Icon: Tag, className: "bottom-[25%] right-[15%] w-8 h-8 rotate-[30deg] hidden sm:block" },
+];
 
 const NotFound = () => {
   const location = useLocation();
@@ -11,8 +24,16 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-background flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
+    <div className="min-h-[calc(100vh-80px)] bg-background flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Floating Icons */}
+      {floatingIcons.map((item, index) => (
+        <item.Icon
+          key={index}
+          className={`absolute text-muted-foreground/10 ${item.className}`}
+        />
+      ))}
+
+      <div className="max-w-md w-full text-center relative z-10">
         {/* 404 Number */}
         <div className="relative mb-8">
           <h1 className="text-[150px] font-bold text-primary/10 leading-none select-none">
