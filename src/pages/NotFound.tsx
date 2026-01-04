@@ -1,6 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Home, ArrowLeft, OctagonX } from "lucide-react";
+import { Home, ArrowLeft, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -13,9 +13,11 @@ const NotFound = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
-        {/* Stop Sign */}
-        <div className="mb-8 flex justify-center">
-          <OctagonX className="w-32 h-32 text-destructive animate-spin" style={{ animationDuration: '3s' }} />
+        {/* 4 0 4 with rotating Ban icon */}
+        <div className="mb-8 flex items-center justify-center gap-2">
+          <span className="text-8xl font-bold text-foreground">4</span>
+          <Ban className="w-24 h-24 text-destructive animate-spin" style={{ animationDuration: '3s' }} />
+          <span className="text-8xl font-bold text-foreground">4</span>
         </div>
 
         {/* Message */}
