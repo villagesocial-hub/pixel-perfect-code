@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ChevronLeft, MapPin, Plus, Banknote } from "lucide-react";
+import { ChevronLeft, MapPin, Plus, Banknote, Store } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLocations, type Location } from "@/contexts/LocationContext";
 import { Button } from "@/components/ui/button";
@@ -226,18 +226,38 @@ const Checkout = () => {
 
           {/* Order Items Section */}
           <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Order Items</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Order Items ({items.length})</h2>
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-secondary/30 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.image} alt={item.title} className="w-full h-full object-contain" />
+                <div key={item.id} className="flex items-start gap-4 p-3 bg-secondary/10 rounded-lg border border-border">
+                  {/* Image - matching ProductCard style */}
+                  <div className="w-20 h-20 bg-secondary/30 rounded-lg overflow-hidden flex-shrink-0">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-contain p-2" />
                   </div>
+                  
+                  {/* Item Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-foreground font-medium truncate">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    <p className="text-sm font-normal text-foreground line-clamp-2 leading-tight mb-1">{item.title}</p>
+                    {item.seller && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5 bg-secondary px-2 py-1 rounded w-fit">
+                        <Store className="w-3 h-3" />
+                        <span>{item.seller}</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                   </div>
-                  <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                  
+                  {/* Price */}
+                  <div className="text-right flex-shrink-0">
+                    <span className="text-lg font-bold text-foreground">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <p className="text-xs text-muted-foreground line-through">
+                        ${(item.originalPrice * item.quantity).toFixed(2)}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
