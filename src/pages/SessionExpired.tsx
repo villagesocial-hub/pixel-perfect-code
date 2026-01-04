@@ -56,11 +56,8 @@ const SessionExpired = () => {
         <h2 className="text-2xl font-semibold text-foreground mb-3">
           Session Expired
         </h2>
-        <p className="text-muted-foreground mb-4">
-          Your session has expired due to inactivity. For your security, we've logged you out.
-        </p>
         <p className="text-muted-foreground mb-8">
-          Please sign in again to continue shopping.
+          Your session has expired. Please sign in again to continue.
         </p>
 
         {/* Actions */}
@@ -79,12 +76,6 @@ const SessionExpired = () => {
           </Button>
         </div>
 
-        {/* Security note */}
-        <div className="mt-8 bg-muted/50 rounded-lg px-4 py-3 inline-block">
-          <p className="text-sm text-muted-foreground">
-            Sessions expire after a period of inactivity for your security
-          </p>
-        </div>
       </div>
     </div>
   );
