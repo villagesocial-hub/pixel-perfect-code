@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle, MapPin, Phone, Mail, User, Calendar, Users, Check, Loader2 } from "lucide-react";
+import { AlertTriangle, Phone, User, Calendar, Users, Check, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { CountryCodeSelect, countryCodes } from "@/components/CountryCodeSelect";
@@ -67,11 +66,6 @@ function getCountryCodeFromPhone(phone: string): string {
   return "+961";
 }
 
-function getPhoneWithoutCode(phone: string): string {
-  const code = getCountryCodeFromPhone(phone);
-  return phone.startsWith(code) ? phone.slice(code.length).trim() : phone;
-}
-
 function sanitizePhoneNumber(value: string) {
   return value.replace(/[^0-9\s]/g, "");
 }
@@ -100,8 +94,16 @@ function getDaysInMonth(month: string, year: string): number {
 }
 
 export function ProfileValidationDialog({ open, onOpenChange, missingFields, onComplete }: ProfileValidationDialogProps) {
-  const [completedFields, setCompletedFields] = useState<Set<MissingField>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+
+  // Form state for non-verification fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [gender, setGender] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobDay, setDobDay] = useState("");
+  const [dobYear, setDobYear] = useState("");
 
   // Phone state
   const [phoneCountryCode, setPhoneCountryCode] = useState("+961");
@@ -112,14 +114,6 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
-
-  // Gender state
-  const [gender, setGender] = useState("");
-
-  // Date of birth state
-  const [dobMonth, setDobMonth] = useState("");
-  const [dobDay, setDobDay] = useState("");
-  const [dobYear, setDobYear] = useState("");
 
   // Resend countdown timer
   useEffect(() => {
@@ -132,15 +126,39 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
   // Reset state when dialog opens
   useEffect(() => {
     if (open) {
-      setCompletedFields(new Set());
-      setPhoneVerificationStep("input");
+      const profile = getStoredProfile();
+      setFirstName(profile.firstName || "");
+      setLastName(profile.lastName || "");
+      setGender(profile.gender || "");
+      
+      // Parse existing DOB
+      if (profile.dateOfBirth) {
+        const parts = profile.dateOfBirth.split("-");
+        if (parts.length === 3) {
+          setDobYear(parts[0]);
+          setDobMonth(parts[1]);
+          setDobDay(parts[2]);
+        }
+      } else {
+        setDobMonth("");
+        setDobDay("");
+        setDobYear("");
+      }
+
+      // Reset phone verification
+      setPhoneVerificationStep(profile.phoneVerified ? "verified" : "input");
+      setPhoneVerified(profile.phoneVerified || false);
       setOtpValue("");
       setOtpError("");
-      setPhoneNumber("");
-      setGender("");
-      setDobMonth("");
-      setDobDay("");
-      setDobYear("");
+      
+      if (profile.phone) {
+        const code = getCountryCodeFromPhone(profile.phone);
+        setPhoneCountryCode(code);
+        setPhoneNumber(profile.phone.slice(code.length).trim());
+      } else {
+        setPhoneCountryCode("+961");
+        setPhoneNumber("");
+      }
     }
   }, [open]);
 
@@ -167,7 +185,7 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
       const fullPhone = `${phoneCountryCode} ${phoneNumber}`.trim();
       saveProfile({ phone: fullPhone, phoneVerified: true });
       setPhoneVerificationStep("verified");
-      setCompletedFields(prev => new Set([...prev, "phone"]));
+      setPhoneVerified(true);
       setVerifying(false);
     } else {
       setOtpError("Invalid code. Try: 123456");
@@ -184,29 +202,52 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
     setResendCountdown(60);
   };
 
-  const handleSaveGender = async () => {
-    if (!gender) return;
+  // Check which non-phone fields need to be filled
+  const needsFirstName = missingFields.includes("firstName");
+  const needsLastName = missingFields.includes("lastName");
+  const needsGender = missingFields.includes("gender");
+  const needsDob = missingFields.includes("dateOfBirth");
+  const needsPhone = missingFields.includes("phone");
+
+  const hasNonPhoneFields = needsFirstName || needsLastName || needsGender || needsDob;
+
+  // Validation for save button
+  const isFirstNameValid = !needsFirstName || firstName.trim().length >= 2;
+  const isLastNameValid = !needsLastName || lastName.trim().length >= 2;
+  const isGenderValid = !needsGender || gender.length > 0;
+  const isDobValid = !needsDob || (dobMonth && dobDay && dobYear);
+  const canSave = isFirstNameValid && isLastNameValid && isGenderValid && isDobValid;
+
+  const handleSaveAll = async () => {
+    if (!canSave) return;
+
     setSaving(true);
-    await new Promise(r => setTimeout(r, 400));
-    saveProfile({ gender });
-    setCompletedFields(prev => new Set([...prev, "gender"]));
+    await new Promise(r => setTimeout(r, 500));
+
+    const updates: Partial<StoredProfile> = {};
+    
+    if (needsFirstName) updates.firstName = firstName.trim();
+    if (needsLastName) updates.lastName = lastName.trim();
+    if (needsGender) updates.gender = gender;
+    if (needsDob) {
+      updates.dateOfBirth = `${dobYear}-${dobMonth}-${dobDay.padStart(2, "0")}`;
+    }
+
+    saveProfile(updates);
     setSaving(false);
   };
 
-  const handleSaveDob = async () => {
-    if (!dobMonth || !dobDay || !dobYear) return;
-    setSaving(true);
-    await new Promise(r => setTimeout(r, 400));
-    const dateOfBirth = `${dobYear}-${dobMonth}-${dobDay.padStart(2, "0")}`;
-    saveProfile({ dateOfBirth });
-    setCompletedFields(prev => new Set([...prev, "dateOfBirth"]));
-    setSaving(false);
-  };
+  // Check if all fields are complete
+  const nonPhoneFieldsComplete = !hasNonPhoneFields || (isFirstNameValid && isLastNameValid && isGenderValid && isDobValid && 
+    firstName.trim().length >= 2 && lastName.trim().length >= 2 && gender.length > 0 && dobMonth && dobDay && dobYear);
+  const phoneComplete = !needsPhone || phoneVerified;
+  const allComplete = nonPhoneFieldsComplete && phoneComplete;
 
-  const remainingFields = missingFields.filter(f => !completedFields.has(f));
-  const allComplete = remainingFields.length === 0;
-
-  const handleDone = () => {
+  const handleDone = async () => {
+    // Save non-phone fields first if needed
+    if (hasNonPhoneFields && canSave) {
+      await handleSaveAll();
+    }
     onOpenChange(false);
     onComplete?.();
   };
@@ -236,16 +277,109 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Phone Verification */}
-          {missingFields.includes("phone") && (
-            <div className={`p-4 rounded-lg border ${completedFields.has("phone") ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
+          {/* First Name */}
+          {needsFirstName && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="font-medium text-sm">First Name</span>
+              </div>
+              <Input
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* Last Name */}
+          {needsLastName && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="font-medium text-sm">Last Name</span>
+              </div>
+              <Input
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* Gender */}
+          {needsGender && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="font-medium text-sm">Gender</span>
+              </div>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Date of Birth */}
+          {needsDob && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="font-medium text-sm">Date of Birth</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={dobMonth} onValueChange={setDobMonth}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map(m => (
+                      <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={dobDay} onValueChange={setDobDay}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Day" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {days.map(d => (
+                      <SelectItem key={d} value={String(d)}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={dobYear} onValueChange={setDobYear}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map(y => (
+                      <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Phone Verification - Separate Section */}
+          {needsPhone && (
+            <div className={`p-4 rounded-lg border ${phoneVerified ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
               <div className="flex items-center gap-2 mb-3">
                 <Phone className="h-4 w-4" />
-                <span className="font-medium text-sm">Phone Number</span>
-                {completedFields.has("phone") && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+                <span className="font-medium text-sm">Phone Verification</span>
+                {phoneVerified && <Check className="h-4 w-4 text-green-600 ml-auto" />}
               </div>
 
-              {phoneVerificationStep === "input" && !completedFields.has("phone") && (
+              {phoneVerificationStep === "input" && !phoneVerified && (
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     <CountryCodeSelect
@@ -271,7 +405,7 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
                 </div>
               )}
 
-              {phoneVerificationStep === "otp" && !completedFields.has("phone") && (
+              {phoneVerificationStep === "otp" && !phoneVerified && (
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">
                     Enter the 6-digit code sent to {phoneCountryCode} {phoneNumber}
@@ -308,126 +442,9 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
                 </div>
               )}
 
-              {completedFields.has("phone") && (
+              {phoneVerified && (
                 <p className="text-sm text-green-600">✓ Phone verified: {phoneCountryCode} {phoneNumber}</p>
               )}
-            </div>
-          )}
-
-          {/* Gender */}
-          {missingFields.includes("gender") && (
-            <div className={`p-4 rounded-lg border ${completedFields.has("gender") ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
-              <div className="flex items-center gap-2 mb-3">
-                <Users className="h-4 w-4" />
-                <span className="font-medium text-sm">Gender</span>
-                {completedFields.has("gender") && <Check className="h-4 w-4 text-green-600 ml-auto" />}
-              </div>
-
-              {!completedFields.has("gender") && (
-                <div className="flex gap-2">
-                  <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button size="sm" onClick={handleSaveGender} disabled={!gender || saving}>
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
-                  </Button>
-                </div>
-              )}
-
-              {completedFields.has("gender") && (
-                <p className="text-sm text-green-600">✓ Gender saved</p>
-              )}
-            </div>
-          )}
-
-          {/* Date of Birth */}
-          {missingFields.includes("dateOfBirth") && (
-            <div className={`p-4 rounded-lg border ${completedFields.has("dateOfBirth") ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar className="h-4 w-4" />
-                <span className="font-medium text-sm">Date of Birth</span>
-                {completedFields.has("dateOfBirth") && <Check className="h-4 w-4 text-green-600 ml-auto" />}
-              </div>
-
-              {!completedFields.has("dateOfBirth") && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2">
-                    <Select value={dobMonth} onValueChange={setDobMonth}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Month" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {months.map(m => (
-                          <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={dobDay} onValueChange={setDobDay}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Day" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {days.map(d => (
-                          <SelectItem key={d} value={String(d)}>{d}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={dobYear} onValueChange={setDobYear}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {years.map(y => (
-                          <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveDob}
-                    disabled={!dobMonth || !dobDay || !dobYear || saving}
-                    className="w-full"
-                  >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Save Date of Birth
-                  </Button>
-                </div>
-              )}
-
-              {completedFields.has("dateOfBirth") && (
-                <p className="text-sm text-green-600">✓ Date of birth saved</p>
-              )}
-            </div>
-          )}
-
-          {/* Location - still redirect to profile */}
-          {missingFields.includes("location") && !completedFields.has("location") && (
-            <div className="p-4 rounded-lg border border-border bg-muted/30">
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium text-sm">Delivery Location</span>
-              </div>
-              <p className="text-xs text-muted-foreground mb-3">Add at least one delivery address in your profile.</p>
-            </div>
-          )}
-
-          {/* First/Last Name - redirect to profile */}
-          {(missingFields.includes("firstName") || missingFields.includes("lastName")) && (
-            <div className="p-4 rounded-lg border border-border bg-muted/30">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="h-4 w-4" />
-                <span className="font-medium text-sm">Name</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Update your name in your profile.</p>
             </div>
           )}
         </div>
@@ -436,15 +453,13 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          {allComplete ? (
-            <Button onClick={handleDone}>
-              Continue to Checkout
-            </Button>
-          ) : (
-            <Button onClick={handleDone} disabled={remainingFields.some(f => ["location", "firstName", "lastName"].includes(f)) && remainingFields.length > 0}>
-              {remainingFields.some(f => ["location", "firstName", "lastName"].includes(f)) ? "Go to Profile" : "Done"}
-            </Button>
-          )}
+          <Button 
+            onClick={handleDone} 
+            disabled={!allComplete || saving}
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            {allComplete ? "Continue to Checkout" : "Save & Continue"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
