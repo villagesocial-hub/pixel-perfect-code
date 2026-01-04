@@ -83,10 +83,11 @@ export const CartItem = ({ item, isSaved = false }: CartItemProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
               onClick={() => removeFromSaved(item.id)}
             >
               <Trash2 className="w-4 h-4" />
+              Remove
             </Button>
           </div>
         </div>

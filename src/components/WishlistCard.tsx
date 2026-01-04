@@ -77,8 +77,9 @@ export const WishlistCard = ({
           onClick={handleRemove}
           className="absolute top-[5px] right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <div className="bg-destructive/90 hover:bg-destructive rounded-full p-1.5 transition-colors">
+          <div className="bg-destructive/90 hover:bg-destructive rounded-lg px-2 py-1.5 transition-colors flex items-center gap-1">
             <Trash2 className="w-4 h-4 text-destructive-foreground" />
+            <span className="text-xs text-destructive-foreground font-medium">Remove</span>
           </div>
         </button>
 
@@ -205,11 +206,12 @@ export const WishlistCard = ({
           </Button>
           <Button
             variant="outline"
-            size="icon"
-            className="h-9 w-9 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
+            size="sm"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
             onClick={handleRemove}
           >
             <Trash2 className="w-4 h-4" />
+            Remove
           </Button>
         </div>
       </div>
