@@ -82,7 +82,7 @@ const SessionExpired = () => {
         {/* Security note */}
         <div className="mt-8 bg-muted/50 rounded-lg px-4 py-3 inline-block">
           <p className="text-sm text-muted-foreground">
-            Sessions expire after <span className="font-medium text-foreground">30 minutes</span> of inactivity
+            Sessions expire after a period of inactivity for your security
           </p>
         </div>
       </div>
