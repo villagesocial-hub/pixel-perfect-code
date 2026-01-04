@@ -1205,11 +1205,13 @@ export default function MyProfile() {
               {verifying ? "Verifying..." : `Verify ${verificationDialog.type === "phone" ? "mobile number" : "email"}`}
             </Button>
 
-            {/* Resend */}
+            {/* Resend with countdown */}
             <p className="text-center mt-5 text-sm text-muted-foreground">
               Didn't receive the code?{" "}
               {resendCountdown > 0 ? (
-                <span className="text-muted-foreground/50 cursor-not-allowed">Resend</span>
+                <span className="text-muted-foreground/60">
+                  Resend in {resendCountdown}s
+                </span>
               ) : (
                 <button
                   type="button"
