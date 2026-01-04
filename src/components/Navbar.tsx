@@ -45,29 +45,29 @@ export const Navbar = () => {
             <Search className="w-5 h-5" />
           </Button>
 
-          {/* About */}
-          <Link to="/about">
+          {/* About - hidden on mobile */}
+          <Link to="/about" className="hidden sm:block">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <Info className="w-5 h-5" />
             </Button>
           </Link>
 
-          {/* 404 Preview (temporary) */}
-          <Link to="/404-preview">
+          {/* 404 Preview (temporary) - hidden on mobile */}
+          <Link to="/404-preview" className="hidden sm:block">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <AlertTriangle className="w-5 h-5" />
             </Button>
           </Link>
 
-          {/* Maintenance Preview (temporary) */}
-          <Link to="/maintenance-preview">
+          {/* Maintenance Preview (temporary) - hidden on mobile */}
+          <Link to="/maintenance-preview" className="hidden sm:block">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <Wrench className="w-5 h-5" />
             </Button>
           </Link>
 
-          {/* Session Expired Preview (temporary) */}
-          <Link to="/session-expired-preview">
+          {/* Session Expired Preview (temporary) - hidden on mobile */}
+          <Link to="/session-expired-preview" className="hidden sm:block">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <TimerOff className="w-5 h-5" />
             </Button>
