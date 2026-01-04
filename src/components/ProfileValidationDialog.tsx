@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle, Phone, User, Calendar, Users, Check, Loader2 } from "lucide-react";
+import { AlertTriangle, Phone, Mail, User, Calendar, Users, Check, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -70,6 +70,10 @@ function sanitizePhoneNumber(value: string) {
   return value.replace(/[^0-9\s]/g, "");
 }
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 // Generate years from 1920 to current year
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
@@ -96,6 +100,7 @@ function getDaysInMonth(month: string, year: string): number {
 export function ProfileValidationDialog({ open, onOpenChange, missingFields, onComplete }: ProfileValidationDialogProps) {
   const [saving, setSaving] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Form state for non-verification fields
   const [firstName, setFirstName] = useState("");
@@ -105,23 +110,39 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
   const [dobDay, setDobDay] = useState("");
   const [dobYear, setDobYear] = useState("");
 
+  // Email state
+  const [email, setEmail] = useState("");
+  const [emailVerificationStep, setEmailVerificationStep] = useState<"input" | "otp" | "verified">("input");
+  const [emailOtpValue, setEmailOtpValue] = useState("");
+  const [emailOtpError, setEmailOtpError] = useState("");
+  const [emailSendingCode, setEmailSendingCode] = useState(false);
+  const [emailVerifying, setEmailVerifying] = useState(false);
+  const [emailResendCountdown, setEmailResendCountdown] = useState(0);
+
   // Phone state
   const [phoneCountryCode, setPhoneCountryCode] = useState("+961");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneVerificationStep, setPhoneVerificationStep] = useState<"input" | "otp" | "verified">("input");
-  const [otpValue, setOtpValue] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [sendingCode, setSendingCode] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(0);
+  const [phoneOtpValue, setPhoneOtpValue] = useState("");
+  const [phoneOtpError, setPhoneOtpError] = useState("");
+  const [phoneSendingCode, setPhoneSendingCode] = useState(false);
+  const [phoneVerifying, setPhoneVerifying] = useState(false);
+  const [phoneResendCountdown, setPhoneResendCountdown] = useState(0);
 
-  // Resend countdown timer
+  // Resend countdown timers
   useEffect(() => {
-    if (resendCountdown > 0) {
-      const timer = setTimeout(() => setResendCountdown(c => c - 1), 1000);
+    if (emailResendCountdown > 0) {
+      const timer = setTimeout(() => setEmailResendCountdown(c => c - 1), 1000);
       return () => clearTimeout(timer);
     }
-  }, [resendCountdown]);
+  }, [emailResendCountdown]);
+
+  useEffect(() => {
+    if (phoneResendCountdown > 0) {
+      const timer = setTimeout(() => setPhoneResendCountdown(c => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [phoneResendCountdown]);
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -130,6 +151,7 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
       setFirstName(profile.firstName || "");
       setLastName(profile.lastName || "");
       setGender(profile.gender || "");
+      setEmail(profile.email || "");
       
       // Parse existing DOB
       if (profile.dateOfBirth) {
@@ -145,11 +167,17 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
         setDobYear("");
       }
 
+      // Reset email verification
+      setEmailVerificationStep(profile.emailVerified ? "verified" : "input");
+      setEmailVerified(profile.emailVerified || false);
+      setEmailOtpValue("");
+      setEmailOtpError("");
+
       // Reset phone verification
       setPhoneVerificationStep(profile.phoneVerified ? "verified" : "input");
       setPhoneVerified(profile.phoneVerified || false);
-      setOtpValue("");
-      setOtpError("");
+      setPhoneOtpValue("");
+      setPhoneOtpError("");
       
       if (profile.phone) {
         const code = getCountryCodeFromPhone(profile.phone);
@@ -162,54 +190,96 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
     }
   }, [open]);
 
-  const handleSendPhoneCode = async () => {
-    if (phoneNumber.length < 6) return;
+  // Email verification handlers
+  const handleSendEmailCode = async () => {
+    if (!isValidEmail(email)) return;
     
-    setSendingCode(true);
+    setEmailSendingCode(true);
     await new Promise(r => setTimeout(r, 1000));
-    setSendingCode(false);
-    setPhoneVerificationStep("otp");
-    setResendCountdown(60);
+    setEmailSendingCode(false);
+    setEmailVerificationStep("otp");
+    setEmailResendCountdown(60);
   };
 
-  const handleVerifyPhone = async () => {
-    if (otpValue.length !== 6) {
-      setOtpError("Please enter all 6 digits");
+  const handleVerifyEmail = async () => {
+    if (emailOtpValue.length !== 6) {
+      setEmailOtpError("Please enter all 6 digits");
       return;
     }
 
-    setVerifying(true);
+    setEmailVerifying(true);
     await new Promise(r => setTimeout(r, 800));
 
-    if (otpValue === DEMO_CODE) {
+    if (emailOtpValue === DEMO_CODE) {
+      saveProfile({ email: email.trim(), emailVerified: true });
+      setEmailVerificationStep("verified");
+      setEmailVerified(true);
+      setEmailVerifying(false);
+    } else {
+      setEmailOtpError("Invalid code. Try: 123456");
+      setEmailVerifying(false);
+    }
+  };
+
+  const handleResendEmailCode = async () => {
+    setEmailSendingCode(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setEmailSendingCode(false);
+    setEmailOtpValue("");
+    setEmailOtpError("");
+    setEmailResendCountdown(60);
+  };
+
+  // Phone verification handlers
+  const handleSendPhoneCode = async () => {
+    if (phoneNumber.length < 6) return;
+    
+    setPhoneSendingCode(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setPhoneSendingCode(false);
+    setPhoneVerificationStep("otp");
+    setPhoneResendCountdown(60);
+  };
+
+  const handleVerifyPhone = async () => {
+    if (phoneOtpValue.length !== 6) {
+      setPhoneOtpError("Please enter all 6 digits");
+      return;
+    }
+
+    setPhoneVerifying(true);
+    await new Promise(r => setTimeout(r, 800));
+
+    if (phoneOtpValue === DEMO_CODE) {
       const fullPhone = `${phoneCountryCode} ${phoneNumber}`.trim();
       saveProfile({ phone: fullPhone, phoneVerified: true });
       setPhoneVerificationStep("verified");
       setPhoneVerified(true);
-      setVerifying(false);
+      setPhoneVerifying(false);
     } else {
-      setOtpError("Invalid code. Try: 123456");
-      setVerifying(false);
+      setPhoneOtpError("Invalid code. Try: 123456");
+      setPhoneVerifying(false);
     }
   };
 
-  const handleResendCode = async () => {
-    setSendingCode(true);
+  const handleResendPhoneCode = async () => {
+    setPhoneSendingCode(true);
     await new Promise(r => setTimeout(r, 1000));
-    setSendingCode(false);
-    setOtpValue("");
-    setOtpError("");
-    setResendCountdown(60);
+    setPhoneSendingCode(false);
+    setPhoneOtpValue("");
+    setPhoneOtpError("");
+    setPhoneResendCountdown(60);
   };
 
-  // Check which non-phone fields need to be filled
+  // Check which fields need to be filled
   const needsFirstName = missingFields.includes("firstName");
   const needsLastName = missingFields.includes("lastName");
   const needsGender = missingFields.includes("gender");
   const needsDob = missingFields.includes("dateOfBirth");
+  const needsEmail = missingFields.includes("email");
   const needsPhone = missingFields.includes("phone");
 
-  const hasNonPhoneFields = needsFirstName || needsLastName || needsGender || needsDob;
+  const hasNonVerificationFields = needsFirstName || needsLastName || needsGender || needsDob;
 
   // Validation for save button
   const isFirstNameValid = !needsFirstName || firstName.trim().length >= 2;
@@ -238,14 +308,19 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
   };
 
   // Check if all fields are complete
-  const nonPhoneFieldsComplete = !hasNonPhoneFields || (isFirstNameValid && isLastNameValid && isGenderValid && isDobValid && 
-    firstName.trim().length >= 2 && lastName.trim().length >= 2 && gender.length > 0 && dobMonth && dobDay && dobYear);
+  const nonVerificationFieldsComplete = !hasNonVerificationFields || (
+    firstName.trim().length >= 2 && 
+    lastName.trim().length >= 2 && 
+    gender.length > 0 && 
+    dobMonth && dobDay && dobYear
+  );
+  const emailComplete = !needsEmail || emailVerified;
   const phoneComplete = !needsPhone || phoneVerified;
-  const allComplete = nonPhoneFieldsComplete && phoneComplete;
+  const allComplete = nonVerificationFieldsComplete && emailComplete && phoneComplete;
 
   const handleDone = async () => {
-    // Save non-phone fields first if needed
-    if (hasNonPhoneFields && canSave) {
+    // Save non-verification fields first if needed
+    if (hasNonVerificationFields && canSave) {
       await handleSaveAll();
     }
     onOpenChange(false);
@@ -370,7 +445,79 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
             </div>
           )}
 
-          {/* Phone Verification - Separate Section */}
+          {/* Email Verification */}
+          {needsEmail && (
+            <div className={`p-4 rounded-lg border ${emailVerified ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <Mail className="h-4 w-4" />
+                <span className="font-medium text-sm">Email Verification</span>
+                {emailVerified && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+              </div>
+
+              {emailVerificationStep === "input" && !emailVerified && (
+                <div className="space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSendEmailCode}
+                    disabled={!isValidEmail(email) || emailSendingCode}
+                    className="w-full"
+                  >
+                    {emailSendingCode ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Send Verification Code
+                  </Button>
+                </div>
+              )}
+
+              {emailVerificationStep === "otp" && !emailVerified && (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Enter the 6-digit code sent to {email}
+                  </p>
+                  <p className="text-xs text-primary">Demo code: 123456</p>
+                  <InputOTP maxLength={6} value={emailOtpValue} onChange={setEmailOtpValue}>
+                    <InputOTPGroup className="gap-1">
+                      {[0, 1, 2, 3, 4, 5].map(i => (
+                        <InputOTPSlot key={i} index={i} className="h-10 w-10" />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                  {emailOtpError && <p className="text-xs text-destructive">{emailOtpError}</p>}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleResendEmailCode}
+                      disabled={emailResendCountdown > 0 || emailSendingCode}
+                      className="flex-1"
+                    >
+                      {emailResendCountdown > 0 ? `Resend in ${emailResendCountdown}s` : "Resend Code"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleVerifyEmail}
+                      disabled={emailOtpValue.length !== 6 || emailVerifying}
+                      className="flex-1"
+                    >
+                      {emailVerifying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      Verify
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {emailVerified && (
+                <p className="text-sm text-green-600">✓ Email verified: {email}</p>
+              )}
+            </div>
+          )}
+
+          {/* Phone Verification */}
           {needsPhone && (
             <div className={`p-4 rounded-lg border ${phoneVerified ? "border-green-500 bg-green-50/50" : "border-border bg-muted/30"}`}>
               <div className="flex items-center gap-2 mb-3">
@@ -396,10 +543,10 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
                   <Button
                     size="sm"
                     onClick={handleSendPhoneCode}
-                    disabled={phoneNumber.length < 6 || sendingCode}
+                    disabled={phoneNumber.length < 6 || phoneSendingCode}
                     className="w-full"
                   >
-                    {sendingCode ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    {phoneSendingCode ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Send Verification Code
                   </Button>
                 </div>
@@ -411,31 +558,31 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
                     Enter the 6-digit code sent to {phoneCountryCode} {phoneNumber}
                   </p>
                   <p className="text-xs text-primary">Demo code: 123456</p>
-                  <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue}>
+                  <InputOTP maxLength={6} value={phoneOtpValue} onChange={setPhoneOtpValue}>
                     <InputOTPGroup className="gap-1">
                       {[0, 1, 2, 3, 4, 5].map(i => (
                         <InputOTPSlot key={i} index={i} className="h-10 w-10" />
                       ))}
                     </InputOTPGroup>
                   </InputOTP>
-                  {otpError && <p className="text-xs text-destructive">{otpError}</p>}
+                  {phoneOtpError && <p className="text-xs text-destructive">{phoneOtpError}</p>}
                   <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={handleResendCode}
-                      disabled={resendCountdown > 0 || sendingCode}
+                      onClick={handleResendPhoneCode}
+                      disabled={phoneResendCountdown > 0 || phoneSendingCode}
                       className="flex-1"
                     >
-                      {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : "Resend Code"}
+                      {phoneResendCountdown > 0 ? `Resend in ${phoneResendCountdown}s` : "Resend Code"}
                     </Button>
                     <Button
                       size="sm"
                       onClick={handleVerifyPhone}
-                      disabled={otpValue.length !== 6 || verifying}
+                      disabled={phoneOtpValue.length !== 6 || phoneVerifying}
                       className="flex-1"
                     >
-                      {verifying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      {phoneVerifying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                       Verify
                     </Button>
                   </div>
