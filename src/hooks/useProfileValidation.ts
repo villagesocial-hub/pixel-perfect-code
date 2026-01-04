@@ -18,10 +18,10 @@ interface StoredProfile {
   dateOfBirth?: string;
 }
 
-// Default profile values (simulating email signup - names predicted from email handle)
+// Default profile values (empty for testing)
 const defaultProfile: StoredProfile = {
-  firstName: "Antoun",
-  lastName: "Elmorr",
+  firstName: "",
+  lastName: "",
   email: "antoun.elmorr@example.com",
   phone: "",
   emailVerified: true,
@@ -70,16 +70,15 @@ export function useProfileValidation() {
     const profile = getStoredProfile();
     const missingFields: MissingField[] = [];
 
-    // TEMPORARILY DISABLED FOR TESTING:
-    // // Check for first name
-    // if (!hasMinLength(profile.firstName, 2)) {
-    //   missingFields.push("firstName");
-    // }
+    // Check for first name
+    if (!hasMinLength(profile.firstName, 2)) {
+      missingFields.push("firstName");
+    }
 
-    // // Check for last name
-    // if (!hasMinLength(profile.lastName, 2)) {
-    //   missingFields.push("lastName");
-    // }
+    // Check for last name
+    if (!hasMinLength(profile.lastName, 2)) {
+      missingFields.push("lastName");
+    }
 
     // Check for location - need at least one location
     const hasLocation = locations.length > 0;
@@ -94,25 +93,22 @@ export function useProfileValidation() {
       missingFields.push("email");
     }
 
-    // TEMPORARILY DISABLED FOR TESTING:
-    // // Check for verified phone
-    // const hasPhone = hasMinLength(profile.phone, 6);
-    // const phoneVerified = Boolean(profile.phoneVerified);
-    // if (!hasPhone || !phoneVerified) {
-    //   missingFields.push("phone");
-    // }
-
-    // // Check for gender
-    // if (!hasMinLength(profile.gender, 1)) {
-    //   missingFields.push("gender");
-    // }
-
-    // // Check for date of birth
-    // if (!hasMinLength(profile.dateOfBirth, 1)) {
-    //   missingFields.push("dateOfBirth");
-    // }
-
+    // Check for verified phone
     const hasPhone = hasMinLength(profile.phone, 6);
+    const phoneVerified = Boolean(profile.phoneVerified);
+    if (!hasPhone || !phoneVerified) {
+      missingFields.push("phone");
+    }
+
+    // Check for gender
+    if (!hasMinLength(profile.gender, 1)) {
+      missingFields.push("gender");
+    }
+
+    // Check for date of birth
+    if (!hasMinLength(profile.dateOfBirth, 1)) {
+      missingFields.push("dateOfBirth");
+    }
 
     return {
       isValid: missingFields.length === 0,
