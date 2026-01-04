@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Heart, Package, User, AlertTriangle, Wrench, TimerOff } from "lucide-react";
+import { ShoppingCart, Search, Heart, Package, User, AlertTriangle, Wrench, TimerOff, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -44,6 +44,13 @@ export const Navbar = () => {
           >
             <Search className="w-5 h-5" />
           </Button>
+
+          {/* About */}
+          <Link to="/about">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Info className="w-5 h-5" />
+            </Button>
+          </Link>
 
           {/* 404 Preview (temporary) */}
           <Link to="/404-preview">
