@@ -18,11 +18,11 @@ interface StoredProfile {
   dateOfBirth?: string;
 }
 
-// Default profile values (simulating email signup - name predicted from email handle)
+// Default profile values (simulating email signup - names predicted from email handle)
 const defaultProfile: StoredProfile = {
   firstName: "Antoun",
-  lastName: "",
-  email: "antoun@example.com",
+  lastName: "Elmorr",
+  email: "antoun.elmorr@example.com",
   phone: "",
   emailVerified: true,
   phoneVerified: false,
