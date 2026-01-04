@@ -179,8 +179,8 @@ export default function MyProfile() {
     }
   }, [expiryCountdown, verificationDialog.open, codeSent]);
 
-  const handleSendVerificationCode = async (type: "email" | "phone") => {
-    const value = type === "email" ? profile.email : profile.phone;
+  const handleSendVerificationCode = async (type: "email" | "phone", valueOverride?: string) => {
+    const value = valueOverride || (type === "email" ? profile.email : profile.phone);
     setSendingCode(true);
     
     // Simulate sending code
@@ -218,10 +218,23 @@ export default function MyProfile() {
       
       // Wait for animation then close and update
       setTimeout(() => {
+        // Update profile with verified value and set verified status
         if (verificationDialog.type === "email") {
-          setProfile(p => ({ ...p, emailVerified: true }));
+          setProfile(p => ({ 
+            ...p, 
+            email: verificationDialog.value,
+            emailVerified: true 
+          }));
+          // Also update draft if in edit mode
+          setIdentityDraft(d => ({ ...d, email: verificationDialog.value }));
         } else {
-          setProfile(p => ({ ...p, phoneVerified: true }));
+          setProfile(p => ({ 
+            ...p, 
+            phone: verificationDialog.value,
+            phoneVerified: true 
+          }));
+          // Also update draft if in edit mode
+          setIdentityDraft(d => ({ ...d, phone: verificationDialog.value }));
         }
         setVerificationDialog(v => ({ ...v, open: false }));
         setCodeSent(false);
@@ -696,7 +709,7 @@ export default function MyProfile() {
                                 variant="outline" 
                                 size="sm" 
                                 className="gap-1 shrink-0"
-                                onClick={() => handleSendVerificationCode("email")}
+                                onClick={() => handleSendVerificationCode("email", identityDraft.email)}
                                 disabled={sendingCode}
                               >
                                 <ShieldCheck className="h-4 w-4" />
@@ -728,7 +741,7 @@ export default function MyProfile() {
                               variant="outline" 
                               size="sm" 
                               className="gap-1 shrink-0"
-                              onClick={() => handleSendVerificationCode("email")}
+                              onClick={() => handleSendVerificationCode("email", identityDraft.email)}
                               disabled={sendingCode || !isEmail(identityDraft.email)}
                             >
                               <ShieldCheck className="h-4 w-4" />
@@ -773,7 +786,7 @@ export default function MyProfile() {
                                 variant="outline" 
                                 size="sm" 
                                 className="gap-1 shrink-0"
-                                onClick={() => handleSendVerificationCode("phone")}
+                                onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
                                 disabled={sendingCode}
                               >
                                 <ShieldCheck className="h-4 w-4" />
@@ -805,7 +818,7 @@ export default function MyProfile() {
                               variant="outline" 
                               size="sm" 
                               className="gap-1 shrink-0"
-                              onClick={() => handleSendVerificationCode("phone")}
+                              onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
                               disabled={sendingCode || !hasMin(identityDraft.phone, 6)}
                             >
                               <ShieldCheck className="h-4 w-4" />
