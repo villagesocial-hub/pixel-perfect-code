@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Check, Pencil, Plus, Trash2, Star, Upload, Image as ImageIcon, Mail, Phone, ShieldCheck } from "lucide-react";
 import { useLocations, type Location } from "@/contexts/LocationContext";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { CountryCodeSelect, countryCodes } from "@/components/CountryCodeSelect";
 
 type LanguageCode = "en" | "ar" | "fr";
 
@@ -45,29 +46,6 @@ function initials(firstName: string, lastName: string) {
   const b = (lastName || "").trim().slice(0, 1);
   return (a + b).toUpperCase() || "U";
 }
-
-const countryCodes = [
-  { code: "+961", country: "Lebanon", flag: "🇱🇧" },
-  { code: "+1", country: "USA", flag: "🇺🇸" },
-  { code: "+44", country: "UK", flag: "🇬🇧" },
-  { code: "+33", country: "France", flag: "🇫🇷" },
-  { code: "+49", country: "Germany", flag: "🇩🇪" },
-  { code: "+971", country: "UAE", flag: "🇦🇪" },
-  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
-  { code: "+20", country: "Egypt", flag: "🇪🇬" },
-  { code: "+962", country: "Jordan", flag: "🇯🇴" },
-  { code: "+963", country: "Syria", flag: "🇸🇾" },
-  { code: "+964", country: "Iraq", flag: "🇮🇶" },
-  { code: "+91", country: "India", flag: "🇮🇳" },
-  { code: "+86", country: "China", flag: "🇨🇳" },
-  { code: "+81", country: "Japan", flag: "🇯🇵" },
-  { code: "+82", country: "South Korea", flag: "🇰🇷" },
-  { code: "+55", country: "Brazil", flag: "🇧🇷" },
-  { code: "+34", country: "Spain", flag: "🇪🇸" },
-  { code: "+39", country: "Italy", flag: "🇮🇹" },
-  { code: "+61", country: "Australia", flag: "🇦🇺" },
-  { code: "+7", country: "Russia", flag: "🇷🇺" },
-];
 
 function sanitizePhoneNumber(value: string) {
   return value.replace(/[^0-9\s]/g, "");
@@ -809,7 +787,7 @@ export default function MyProfile() {
                             To change your verified phone, enter a new one below:
                           </p>
                           <div className="flex gap-2 mt-1.5">
-                            <Select
+                            <CountryCodeSelect
                               value={getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone)}
                               onValueChange={(code) => {
                                 const currentNumber = getPhoneWithoutCode(identityDraft.phone === profile.phone ? "" : identityDraft.phone);
@@ -818,24 +796,7 @@ export default function MyProfile() {
                                   phone: formatFullPhone(code, currentNumber)
                                 }));
                               }}
-                            >
-                              <SelectTrigger className="w-[110px] shrink-0">
-                                <SelectValue>
-                                  {(() => {
-                                    const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
-                                    const country = countryCodes.find(c => c.code === code);
-                                    return country ? `${country.flag} ${country.code}` : code;
-                                  })()}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {countryCodes.map(c => (
-                                  <SelectItem key={c.code} value={c.code}>
-                                    {c.flag} {c.country} ({c.code})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            />
                             <Input 
                               id="phone" 
                               value={identityDraft.phone === profile.phone ? "" : getPhoneWithoutCode(identityDraft.phone)} 
@@ -874,7 +835,7 @@ export default function MyProfile() {
                       ) : (
                         <div className="mt-1.5">
                           <div className="flex gap-2">
-                            <Select
+                            <CountryCodeSelect
                               value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
                               onValueChange={(code) => {
                                 const currentNumber = getPhoneWithoutCode(identityDraft.phone);
@@ -883,24 +844,7 @@ export default function MyProfile() {
                                   phone: formatFullPhone(code, currentNumber)
                                 }));
                               }}
-                            >
-                              <SelectTrigger className="w-[110px] shrink-0">
-                                <SelectValue>
-                                  {(() => {
-                                    const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
-                                    const country = countryCodes.find(c => c.code === code);
-                                    return country ? `${country.flag} ${country.code}` : code;
-                                  })()}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {countryCodes.map(c => (
-                                  <SelectItem key={c.code} value={c.code}>
-                                    {c.flag} {c.country} ({c.code})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            />
                             <Input 
                               id="phone" 
                               value={getPhoneWithoutCode(identityDraft.phone)} 
