@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, MapPin, Plus, Banknote, Store } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLocations, type Location } from "@/contexts/LocationContext";
+import { useOrders } from "@/contexts/OrdersContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,10 +17,20 @@ function hasMin(value: string, n: number) {
   return value.trim().length >= n;
 }
 
+function generateOrderNumber() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "KMX ";
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, getCartTotal, promoDiscount, clearCart } = useCart();
+  const { items, promoDiscount, clearCart } = useCart();
   const { locations, selectedLocation, selectLocation, addLocation } = useLocations();
+  const { addOrder } = useOrders();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -58,9 +69,31 @@ const Checkout = () => {
     }
 
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     
-    const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
+    const orderNumber = generateOrderNumber();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    
+    // Create order from cart items
+    addOrder({
+      number: orderNumber,
+      date: dateStr,
+      total: total,
+      status: "Pending",
+      paymentMethod: "Cash on delivery",
+      address: `${selectedLocation.city}, ${selectedLocation.region}, ${selectedLocation.addressLine}`,
+      items: items.map((item, index) => ({
+        id: `item-${index}-${Date.now()}`,
+        name: item.title,
+        variant: item.options?.map(o => o.value).join(", ") || "Standard",
+        qty: item.quantity,
+        price: item.price,
+        imageUrl: item.image,
+        productUrl: `/product/${item.id}`,
+      })),
+    });
+    
     clearCart();
     navigate(`/order-success?order=${orderNumber}`);
   };

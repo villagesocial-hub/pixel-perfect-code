@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LocationProvider } from "@/contexts/LocationContext";
+import { OrdersProvider } from "@/contexts/OrdersContext";
 import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
 import Cart from "./pages/Cart";
@@ -24,6 +25,7 @@ const App = () => (
       <CartProvider>
         <WishlistProvider>
           <LocationProvider>
+            <OrdersProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -40,6 +42,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            </OrdersProvider>
           </LocationProvider>
         </WishlistProvider>
       </CartProvider>

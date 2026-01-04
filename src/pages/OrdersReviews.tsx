@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Search } from "lucide-react";
 import type { Order, ReviewTarget, DeleteTarget, ReviewPayload } from "@/types/orders";
-import { sampleOrders } from "@/data/sample-orders";
+import { useOrders } from "@/contexts/OrdersContext";
 import { docText, safeFilename, downloadFile, nowStamp } from "@/lib/orders-utils";
 import { OrderCard } from "@/components/orders/OrderCard";
 import { OrderDetailSheet } from "@/components/orders/OrderDetailSheet";
@@ -12,10 +12,10 @@ import { ReviewDialog } from "@/components/orders/ReviewDialog";
 import { DeleteConfirmDialog } from "@/components/orders/DeleteConfirmDialog";
 
 export default function OrdersReviewsPage() {
-  const [orders, setOrders] = useState<Order[]>(sampleOrders);
+  const { orders, updateOrderReview, updateItemReview, deleteOrderReview, deleteItemReview } = useOrders();
   const [query, setQuery] = useState("");
   const [detailOpen, setDetailOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>(sampleOrders[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState<string>(orders[0]?.id ?? "");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
   const [reviewRating, setReviewRating] = useState<number>(0);
@@ -104,26 +104,16 @@ export default function OrdersReviewsPage() {
       images: reviewImages.length ? reviewImages : undefined,
       updatedAt: nowStamp()
     };
-    setOrders(prev => prev.map(o => {
-      if (o.id !== reviewTarget.orderId) return o;
-      if (reviewTarget.type === "order") {
-        return {
-          ...o,
-          orderReview: payload
-        };
-      }
-      const next = {
-        ...(o.itemReviews ?? {})
-      };
-      next[reviewTarget.itemId] = payload;
-      return {
-        ...o,
-        itemReviews: next
-      };
-    }));
+    
+    if (reviewTarget.type === "order") {
+      updateOrderReview(reviewTarget.orderId, payload);
+    } else {
+      updateItemReview(reviewTarget.orderId, reviewTarget.itemId, payload);
+    }
+    
     setReviewOpen(false);
     setReviewTarget(null);
-  }, [reviewTarget, orders, reviewRating, reviewText, reviewImages]);
+  }, [reviewTarget, orders, reviewRating, reviewText, reviewImages, updateOrderReview, updateItemReview]);
 
   const requestDelete = useCallback((t: DeleteTarget) => {
     setDeleteTarget(t);
@@ -146,27 +136,16 @@ export default function OrdersReviewsPage() {
 
   const confirmDelete = useCallback(() => {
     if (!deleteTarget) return;
-    setOrders(prev => prev.map(o => {
-      if (o.id !== deleteTarget.orderId) return o;
-      if (deleteTarget.type === "order") {
-        return {
-          ...o,
-          orderReview: undefined
-        };
-      }
-      const next = {
-        ...(o.itemReviews ?? {})
-      };
-      delete next[deleteTarget.itemId];
-      const hasAny = Object.keys(next).length > 0;
-      return {
-        ...o,
-        itemReviews: hasAny ? next : undefined
-      };
-    }));
+    
+    if (deleteTarget.type === "order") {
+      deleteOrderReview(deleteTarget.orderId);
+    } else {
+      deleteItemReview(deleteTarget.orderId, deleteTarget.itemId);
+    }
+    
     setConfirmDeleteOpen(false);
     setDeleteTarget(null);
-  }, [deleteTarget]);
+  }, [deleteTarget, deleteOrderReview, deleteItemReview]);
 
   const handleReviewDialogOpenChange = useCallback((open: boolean) => {
     setReviewOpen(open);
