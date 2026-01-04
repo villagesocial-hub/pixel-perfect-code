@@ -155,9 +155,28 @@ export default function MyProfile() {
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [expiryCountdown, setExpiryCountdown] = useState(0);
 
   // Fixed verification code for demo
   const DEMO_CODE = "123456";
+
+  // Countdown timers
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(c => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  useEffect(() => {
+    if (expiryCountdown > 0) {
+      const timer = setTimeout(() => setExpiryCountdown(c => c - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (expiryCountdown === 0 && verificationDialog.open && codeSent) {
+      setOtpError("Code expired. Please request a new one.");
+    }
+  }, [expiryCountdown, verificationDialog.open, codeSent]);
 
   const handleSendVerificationCode = async (type: "email" | "phone") => {
     const value = type === "email" ? profile.email : profile.phone;
@@ -171,11 +190,18 @@ export default function MyProfile() {
     setOtpError("");
     setCodeSent(true);
     setSendingCode(false);
+    setResendCountdown(60);
+    setExpiryCountdown(120);
     
     showToast("Code Sent", "Enter code: 123456");
   };
 
   const handleVerifyCode = async () => {
+    if (expiryCountdown === 0) {
+      setOtpError("Code expired. Please request a new one.");
+      return;
+    }
+    
     if (otpValue.length !== 6) {
       setOtpError("Please enter all 6 digits");
       return;
@@ -193,6 +219,8 @@ export default function MyProfile() {
       }
       setVerificationDialog(v => ({ ...v, open: false }));
       setCodeSent(false);
+      setResendCountdown(0);
+      setExpiryCountdown(0);
       showToast("Verified", `Your ${verificationDialog.type} has been verified.`);
     } else {
       setOtpError("Invalid code. Please try again.");
@@ -208,6 +236,8 @@ export default function MyProfile() {
     setOtpValue("");
     setOtpError("");
     setSendingCode(false);
+    setResendCountdown(60);
+    setExpiryCountdown(120);
     showToast("Code Resent", "Enter code: 123456");
   };
 
@@ -1077,6 +1107,18 @@ export default function MyProfile() {
 
           <div className="py-6">
             <div className="flex flex-col items-center gap-4">
+              {/* Code expiry countdown */}
+              {expiryCountdown > 0 ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Code expires in</span>
+                  <span className={`font-mono font-medium ${expiryCountdown <= 30 ? "text-destructive" : "text-foreground"}`}>
+                    {Math.floor(expiryCountdown / 60)}:{(expiryCountdown % 60).toString().padStart(2, "0")}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-sm text-destructive">Code expired</div>
+              )}
+
               <InputOTP
                 maxLength={6}
                 value={otpValue}
@@ -1084,6 +1126,7 @@ export default function MyProfile() {
                   setOtpValue(value);
                   setOtpError("");
                 }}
+                disabled={expiryCountdown === 0}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -1099,15 +1142,22 @@ export default function MyProfile() {
                 <p className="text-sm text-destructive">{otpError}</p>
               )}
 
-              <Button
-                variant="link"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={handleResendCode}
-                disabled={sendingCode}
-              >
-                {sendingCode ? "Sending..." : "Resend code"}
-              </Button>
+              {/* Resend countdown */}
+              {resendCountdown > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Resend code in <span className="font-mono font-medium text-foreground">{resendCountdown}s</span>
+                </p>
+              ) : (
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="text-muted-foreground"
+                  onClick={handleResendCode}
+                  disabled={sendingCode}
+                >
+                  {sendingCode ? "Sending..." : "Resend code"}
+                </Button>
+              )}
             </div>
           </div>
 
