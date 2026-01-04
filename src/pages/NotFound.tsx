@@ -1,19 +1,37 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Home, ArrowLeft, SearchX, ShoppingBag, Package, Box, Tag, CreditCard, Truck } from "lucide-react";
+import { Home, ArrowLeft, SearchX, ShoppingBag, Package, Box, Tag, CreditCard, Truck, Heart, Star, Percent, Gift, Wallet, Store, ShoppingCart, Receipt, Bookmark, BadgePercent, PackageOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const floatingIcons = [
-  { Icon: ShoppingBag, className: "top-[15%] left-[8%] w-8 h-8 rotate-[-15deg]" },
-  { Icon: Package, className: "top-[25%] right-[10%] w-10 h-10 rotate-[20deg]" },
+  { Icon: ShoppingBag, className: "top-[10%] left-[8%] w-8 h-8 rotate-[-15deg]" },
+  { Icon: Package, className: "top-[18%] right-[10%] w-10 h-10 rotate-[20deg]" },
   { Icon: Box, className: "bottom-[30%] left-[12%] w-7 h-7 rotate-[10deg]" },
   { Icon: Tag, className: "top-[40%] left-[5%] w-6 h-6 rotate-[-25deg]" },
-  { Icon: CreditCard, className: "bottom-[20%] right-[8%] w-9 h-9 rotate-[15deg]" },
-  { Icon: Truck, className: "top-[20%] left-[15%] w-8 h-8 rotate-[-5deg] hidden sm:block" },
+  { Icon: CreditCard, className: "bottom-[18%] right-[8%] w-9 h-9 rotate-[15deg]" },
+  { Icon: Truck, className: "top-[55%] left-[7%] w-8 h-8 rotate-[-5deg]" },
   { Icon: ShoppingBag, className: "bottom-[40%] right-[12%] w-6 h-6 rotate-[-20deg]" },
-  { Icon: Package, className: "bottom-[15%] left-[6%] w-10 h-10 rotate-[25deg]" },
-  { Icon: Box, className: "top-[35%] right-[6%] w-7 h-7 rotate-[-10deg]" },
-  { Icon: Tag, className: "bottom-[25%] right-[15%] w-8 h-8 rotate-[30deg] hidden sm:block" },
+  { Icon: Package, className: "bottom-[12%] left-[6%] w-10 h-10 rotate-[25deg]" },
+  { Icon: Box, className: "top-[30%] right-[6%] w-7 h-7 rotate-[-10deg]" },
+  { Icon: Tag, className: "bottom-[25%] right-[15%] w-8 h-8 rotate-[30deg]" },
+  { Icon: Heart, className: "top-[12%] left-[18%] w-6 h-6 rotate-[12deg]" },
+  { Icon: Star, className: "top-[22%] right-[18%] w-7 h-7 rotate-[-18deg]" },
+  { Icon: Percent, className: "bottom-[45%] left-[4%] w-8 h-8 rotate-[8deg]" },
+  { Icon: Gift, className: "top-[48%] right-[5%] w-9 h-9 rotate-[-12deg]" },
+  { Icon: Wallet, className: "bottom-[35%] right-[6%] w-6 h-6 rotate-[22deg]" },
+  { Icon: Store, className: "top-[8%] right-[15%] w-8 h-8 rotate-[5deg]" },
+  { Icon: ShoppingCart, className: "bottom-[8%] right-[18%] w-10 h-10 rotate-[-8deg]" },
+  { Icon: Receipt, className: "top-[60%] left-[10%] w-7 h-7 rotate-[18deg]" },
+  { Icon: Bookmark, className: "bottom-[55%] right-[10%] w-6 h-6 rotate-[-15deg]" },
+  { Icon: BadgePercent, className: "top-[35%] left-[15%] w-9 h-9 rotate-[-22deg]" },
+  { Icon: PackageOpen, className: "bottom-[22%] left-[16%] w-8 h-8 rotate-[15deg]" },
+  { Icon: Heart, className: "top-[65%] right-[14%] w-7 h-7 rotate-[28deg]" },
+  { Icon: CreditCard, className: "top-[5%] left-[25%] w-6 h-6 rotate-[-8deg] hidden sm:block" },
+  { Icon: Truck, className: "bottom-[5%] right-[25%] w-7 h-7 rotate-[12deg] hidden sm:block" },
+  { Icon: Gift, className: "top-[75%] left-[5%] w-8 h-8 rotate-[-20deg]" },
+  { Icon: Star, className: "bottom-[65%] left-[8%] w-5 h-5 rotate-[35deg]" },
+  { Icon: ShoppingCart, className: "top-[28%] left-[3%] w-7 h-7 rotate-[18deg]" },
+  { Icon: Store, className: "bottom-[48%] right-[4%] w-8 h-8 rotate-[-25deg]" },
 ];
 
 const NotFound = () => {
