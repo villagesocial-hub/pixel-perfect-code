@@ -588,21 +588,24 @@ export default function MyProfile() {
                 <CardDescription>Who you are and how we reach you.</CardDescription>
               </div>
 
-              {!identityEditing ? (
-                <Button variant="outline" size="sm" onClick={startIdentityEdit} className="gap-2">
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={cancelIdentityEdit} disabled={savingSection === "identity"}>
-                    Cancel
+              {/* Desktop buttons - hidden on mobile */}
+              <div className="hidden sm:block">
+                {!identityEditing ? (
+                  <Button variant="outline" size="sm" onClick={startIdentityEdit} className="gap-2">
+                    <Pencil className="h-4 w-4" />
+                    Edit
                   </Button>
-                  <Button size="sm" onClick={saveIdentity} disabled={savingSection === "identity"}>
-                    {savingSection === "identity" ? "Saving..." : "Save"}
-                  </Button>
-                </div>
-              )}
+                ) : (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={cancelIdentityEdit} disabled={savingSection === "identity"}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={saveIdentity} disabled={savingSection === "identity"}>
+                      {savingSection === "identity" ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
 
             <CardContent>
@@ -902,6 +905,25 @@ export default function MyProfile() {
                   </div>
                 )}
               </div>
+
+              {/* Mobile buttons - shown at bottom of card on mobile */}
+              <div className="flex gap-2 pt-4 sm:hidden">
+                {!identityEditing ? (
+                  <Button variant="outline" size="sm" onClick={startIdentityEdit} className="gap-2 w-full">
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" onClick={cancelIdentityEdit} disabled={savingSection === "identity"} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={saveIdentity} disabled={savingSection === "identity"} className="flex-1">
+                      {savingSection === "identity" ? "Saving..." : "Save"}
+                    </Button>
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -913,21 +935,24 @@ export default function MyProfile() {
                 <CardDescription>Optional details to personalize your experience.</CardDescription>
               </div>
 
-              {!prefsEditing ? (
-                <Button variant="outline" size="sm" onClick={startPrefsEdit} className="gap-2">
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={cancelPrefsEdit} disabled={savingSection === "prefs"}>
-                    Cancel
+              {/* Desktop buttons - hidden on mobile */}
+              <div className="hidden sm:block">
+                {!prefsEditing ? (
+                  <Button variant="outline" size="sm" onClick={startPrefsEdit} className="gap-2">
+                    <Pencil className="h-4 w-4" />
+                    Edit
                   </Button>
-                  <Button size="sm" onClick={savePrefs} disabled={savingSection === "prefs"}>
-                    {savingSection === "prefs" ? "Saving..." : "Save"}
-                  </Button>
-                </div>
-              )}
+                ) : (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={cancelPrefsEdit} disabled={savingSection === "prefs"}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={savePrefs} disabled={savingSection === "prefs"}>
+                      {savingSection === "prefs" ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
 
             <CardContent>
@@ -996,6 +1021,25 @@ export default function MyProfile() {
                   </div>
                 </div>
               )}
+
+              {/* Mobile buttons - shown at bottom of card on mobile */}
+              <div className="flex gap-2 pt-4 sm:hidden">
+                {!prefsEditing ? (
+                  <Button variant="outline" size="sm" onClick={startPrefsEdit} className="gap-2 w-full">
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" onClick={cancelPrefsEdit} disabled={savingSection === "prefs"} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={savePrefs} disabled={savingSection === "prefs"} className="flex-1">
+                      {savingSection === "prefs" ? "Saving..." : "Save"}
+                    </Button>
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
 
