@@ -7,11 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Check, Pencil, Plus, Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
+import { Check, Pencil, Plus, Trash2, Star, Upload, Image as ImageIcon, Mail, Phone, ShieldCheck } from "lucide-react";
 import { useLocations, type Location } from "@/contexts/LocationContext";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 type LanguageCode = "en" | "ar" | "fr";
 
@@ -141,6 +142,79 @@ export default function MyProfile() {
 
   const [savingSection, setSavingSection] = useState<"identity" | "prefs" | "location" | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Verification state
+  const [verificationDialog, setVerificationDialog] = useState<{
+    open: boolean;
+    type: "email" | "phone";
+    value: string;
+    code: string;
+  }>({ open: false, type: "email", value: "", code: "" });
+  const [otpValue, setOtpValue] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+
+  // Generate a mock 6-digit code
+  const generateCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  const handleSendVerificationCode = async (type: "email" | "phone") => {
+    const value = type === "email" ? profile.email : profile.phone;
+    setSendingCode(true);
+    
+    // Simulate sending code
+    await new Promise(r => setTimeout(r, 1000));
+    
+    const code = generateCode();
+    setVerificationDialog({ open: true, type, value, code });
+    setOtpValue("");
+    setOtpError("");
+    setCodeSent(true);
+    setSendingCode(false);
+    
+    // Show the code in a toast for demo purposes
+    showToast("Code Sent", `Demo code: ${code}`);
+  };
+
+  const handleVerifyCode = async () => {
+    if (otpValue.length !== 6) {
+      setOtpError("Please enter all 6 digits");
+      return;
+    }
+    
+    setVerifying(true);
+    await new Promise(r => setTimeout(r, 800));
+    
+    if (otpValue === verificationDialog.code) {
+      // Verification successful
+      if (verificationDialog.type === "email") {
+        setProfile(p => ({ ...p, emailVerified: true }));
+      } else {
+        setProfile(p => ({ ...p, phoneVerified: true }));
+      }
+      setVerificationDialog(v => ({ ...v, open: false }));
+      setCodeSent(false);
+      showToast("Verified", `Your ${verificationDialog.type} has been verified.`);
+    } else {
+      setOtpError("Invalid code. Please try again.");
+    }
+    setVerifying(false);
+  };
+
+  const handleResendCode = async () => {
+    setSendingCode(true);
+    await new Promise(r => setTimeout(r, 1000));
+    
+    const code = generateCode();
+    setVerificationDialog(v => ({ ...v, code }));
+    setOtpValue("");
+    setOtpError("");
+    setSendingCode(false);
+    showToast("Code Resent", `Demo code: ${code}`);
+  };
 
   const profileCompletion = useMemo(() => {
     const checks = [
@@ -499,12 +573,48 @@ export default function MyProfile() {
 
                     <div>
                       <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium text-foreground">{profile.email}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-medium text-foreground">{profile.email}</span>
+                        {profile.emailVerified ? (
+                          <Badge variant="success" className="gap-1 text-xs">
+                            <Check className="h-3 w-3" /> Verified
+                          </Badge>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-7 text-xs gap-1"
+                            onClick={() => handleSendVerificationCode("email")}
+                            disabled={sendingCode}
+                          >
+                            <ShieldCheck className="h-3 w-3" />
+                            {sendingCode ? "Sending..." : "Verify"}
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     <div>
                       <div className="text-sm text-muted-foreground">Phone</div>
-                      <div className="font-medium text-foreground">{profile.phone}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-medium text-foreground">{profile.phone}</span>
+                        {profile.phoneVerified ? (
+                          <Badge variant="success" className="gap-1 text-xs">
+                            <Check className="h-3 w-3" /> Verified
+                          </Badge>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-7 text-xs gap-1"
+                            onClick={() => handleSendVerificationCode("phone")}
+                            disabled={sendingCode}
+                          >
+                            <ShieldCheck className="h-3 w-3" />
+                            {sendingCode ? "Sending..." : "Verify"}
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="sm:col-span-2">
@@ -886,6 +996,88 @@ export default function MyProfile() {
           </Card>
         </div>
       </div>
+
+      {/* OTP Verification Dialog */}
+      <Dialog open={verificationDialog.open} onOpenChange={(open) => {
+        if (!open) {
+          setVerificationDialog(v => ({ ...v, open: false }));
+          setCodeSent(false);
+          setOtpValue("");
+          setOtpError("");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-full bg-foreground/10">
+                {verificationDialog.type === "email" ? (
+                  <Mail className="h-5 w-5 text-foreground" />
+                ) : (
+                  <Phone className="h-5 w-5 text-foreground" />
+                )}
+              </div>
+              <DialogTitle>Verify your {verificationDialog.type}</DialogTitle>
+            </div>
+            <DialogDescription>
+              We sent a 6-digit verification code to{" "}
+              <span className="font-medium text-foreground">{verificationDialog.value}</span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-6">
+            <div className="flex flex-col items-center gap-4">
+              <InputOTP
+                maxLength={6}
+                value={otpValue}
+                onChange={(value) => {
+                  setOtpValue(value);
+                  setOtpError("");
+                }}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+
+              {otpError && (
+                <p className="text-sm text-destructive">{otpError}</p>
+              )}
+
+              <Button
+                variant="link"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={handleResendCode}
+                disabled={sendingCode}
+              >
+                {sendingCode ? "Sending..." : "Resend code"}
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setVerificationDialog(v => ({ ...v, open: false }));
+                setCodeSent(false);
+                setOtpValue("");
+                setOtpError("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleVerifyCode} disabled={verifying || otpValue.length !== 6}>
+              {verifying ? "Verifying..." : "Verify"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
