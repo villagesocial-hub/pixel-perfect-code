@@ -533,12 +533,17 @@ export function ProfileValidationDialog({ open, onOpenChange, missingFields, onC
                       value={phoneCountryCode}
                       onValueChange={setPhoneCountryCode}
                     />
-                    <Input
-                      placeholder="70 123 456"
-                      value={phoneNumber}
-                      onChange={e => setPhoneNumber(sanitizePhoneNumber(e.target.value))}
-                      className="flex-1"
-                    />
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {phoneCountryCode}
+                      </span>
+                      <Input
+                        placeholder="70 123 456"
+                        value={phoneNumber}
+                        onChange={e => setPhoneNumber(sanitizePhoneNumber(e.target.value))}
+                        className="pl-14"
+                      />
+                    </div>
                   </div>
                   <Button
                     size="sm"
