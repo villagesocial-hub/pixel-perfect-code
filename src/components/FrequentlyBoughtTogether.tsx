@@ -74,13 +74,16 @@ export const FrequentlyBoughtTogether = () => {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         {suggestedProducts.map((product, index) => (
           <div key={product.id} className="flex items-center">
-            <div className="w-20 h-20 bg-secondary/30 rounded-lg overflow-hidden">
+            <a 
+              href={`/product/${product.id}`}
+              className="w-20 h-20 bg-secondary/30 rounded-lg overflow-hidden block hover:ring-2 hover:ring-foreground/20 transition-all"
+            >
               <img
                 src={product.image}
                 alt={product.title}
                 className="w-full h-full object-contain p-2"
               />
-            </div>
+            </a>
             {index < suggestedProducts.length - 1 && (
               <Plus className="w-4 h-4 text-muted-foreground mx-2" />
             )}

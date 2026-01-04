@@ -207,12 +207,12 @@ const Checkout = () => {
                         key={location.id}
                         className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                           selectedLocation?.id === location.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
+                            ? "border-foreground bg-foreground/5"
+                            : "border-border hover:border-foreground/50"
                         }`}
                         onClick={() => selectLocation(location.id)}
                       >
-                        <RadioGroupItem value={location.id} id={location.id} className="mt-1" />
+                        <RadioGroupItem value={location.id} id={location.id} className="mt-1 border-foreground text-foreground data-[state=checked]:border-foreground data-[state=checked]:text-foreground" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <Label htmlFor={location.id} className="font-semibold cursor-pointer">
@@ -256,9 +256,9 @@ const Checkout = () => {
               Payment Method
             </h2>
             
-            <div className="flex items-center gap-3 p-4 border border-primary bg-primary/5 rounded-lg">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Banknote className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-3 p-4 border border-foreground bg-foreground/5 rounded-lg">
+              <div className="w-10 h-10 bg-foreground/10 rounded-full flex items-center justify-center">
+                <Banknote className="w-5 h-5 text-foreground" />
               </div>
               <div>
                 <p className="font-medium text-foreground">Cash on Delivery</p>
