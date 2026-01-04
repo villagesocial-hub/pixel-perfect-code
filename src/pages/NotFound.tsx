@@ -53,11 +53,11 @@ const NotFound = () => {
       <div className="max-w-md w-full text-center relative z-10">
         {/* 404 Number */}
         <div className="relative mb-8">
-          <h1 className="text-[150px] font-bold text-primary/10 leading-none select-none">
+          <h1 className="text-[150px] font-bold text-muted-foreground/20 leading-none select-none">
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">
-            <SearchX className="w-20 h-20 text-primary" />
+            <SearchX className="w-20 h-20 text-foreground" />
           </div>
         </div>
 
