@@ -1,12 +1,14 @@
-import { ShoppingCart, Search, Menu } from "lucide-react";
+import { ShoppingCart, Search, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
 export const Navbar = () => {
   const { getCartCount } = useCart();
+  const { totalItems: wishlistCount } = useWishlist();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const cartCount = getCartCount();
 
@@ -41,6 +43,18 @@ export const Navbar = () => {
           >
             <Search className="w-5 h-5" />
           </Button>
+
+          {/* Wishlist */}
+          <Link to="/wishlist">
+            <Button variant="ghost" size="icon" className="relative">
+              <Heart className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-urgency text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  {wishlistCount > 99 ? "99+" : wishlistCount}
+                </span>
+              )}
+            </Button>
+          </Link>
 
           {/* Cart */}
           <Link to="/cart">
