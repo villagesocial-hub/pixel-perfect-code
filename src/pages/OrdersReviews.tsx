@@ -180,7 +180,7 @@ export default function OrdersReviewsPage() {
 
             <div className="relative w-full md:w-[320px]">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search orders..." className="pl-9" />
+              <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search orders..." className="pl-9 rounded-full" />
             </div>
           </div>
 
