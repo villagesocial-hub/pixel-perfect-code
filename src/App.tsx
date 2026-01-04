@@ -17,6 +17,7 @@ import OrdersReviews from "./pages/OrdersReviews";
 import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 import Maintenance from "./pages/Maintenance";
+import SessionExpired from "./pages/SessionExpired";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/orders" element={<OrdersReviews />} />
                 <Route path="/profile" element={<MyProfile />} />
                 <Route path="/maintenance-preview" element={<Maintenance />} />
+                <Route path="/session-expired-preview" element={<SessionExpired />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
