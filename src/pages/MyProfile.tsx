@@ -408,8 +408,8 @@ export default function MyProfile() {
         {toast ? (
           <div className="mb-6 animate-fade-in rounded-lg border border-border bg-card px-4 py-3 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 rounded-full border border-primary/20 bg-primary/10 p-1">
-                <Check className="h-4 w-4 text-primary" />
+              <div className="mt-0.5 rounded-full border border-foreground/20 bg-foreground/10 p-1">
+                <Check className="h-4 w-4 text-foreground" />
               </div>
               <div>
                 <div className="text-sm font-medium text-foreground">{toast.title}</div>
