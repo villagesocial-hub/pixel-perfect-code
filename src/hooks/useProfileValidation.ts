@@ -18,12 +18,12 @@ interface StoredProfile {
   dateOfBirth?: string;
 }
 
-// Default profile values (matching MyProfile.tsx defaults)
+// Default profile values (simulating email signup - name predicted from email handle)
 const defaultProfile: StoredProfile = {
   firstName: "Antoun",
-  lastName: "El Morr",
+  lastName: "",
   email: "antoun@example.com",
-  phone: "+961 70 123 456",
+  phone: "",
   emailVerified: true,
   phoneVerified: false,
   gender: "",

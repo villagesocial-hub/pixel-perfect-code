@@ -90,10 +90,10 @@ const PROFILE_STORAGE_KEY = "user-profile";
 const defaultProfile: Profile = {
   imageDataUrl: "",
   firstName: "Antoun",
-  lastName: "El Morr",
+  lastName: "",
   email: "antoun@example.com",
   emailVerified: true,
-  phone: "+961 70 123 456",
+  phone: "",
   phoneVerified: false,
   joiningDate: "2025-07-14T12:00:00.000Z",
   gender: "",
