@@ -81,12 +81,18 @@ export function useProfileValidation() {
       missingFields.push("location");
     }
 
-    // Check for contact info - need at least email OR phone
+    // Check for verified email
     const hasEmail = isValidEmail(profile.email);
+    const emailVerified = Boolean(profile.emailVerified);
+    if (!hasEmail || !emailVerified) {
+      missingFields.push("email");
+    }
+
+    // Check for verified phone
     const hasPhone = hasMinLength(profile.phone, 6);
-    
-    if (!hasEmail && !hasPhone) {
-      missingFields.push("contact");
+    const phoneVerified = Boolean(profile.phoneVerified);
+    if (!hasPhone || !phoneVerified) {
+      missingFields.push("phone");
     }
 
     // Check for gender

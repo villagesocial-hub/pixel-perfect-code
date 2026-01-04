@@ -41,13 +41,13 @@ const fieldConfig: Record<MissingField, { icon: React.ElementType; label: string
   },
   phone: {
     icon: Phone,
-    label: "Phone Number",
-    description: "Add your phone number for delivery updates",
+    label: "Verified Phone Number",
+    description: "Add and verify your phone number for delivery updates",
   },
   email: {
     icon: Mail,
-    label: "Email Address",
-    description: "Add your email for order confirmations",
+    label: "Verified Email Address",
+    description: "Add and verify your email for order confirmations",
   },
   gender: {
     icon: Users,
