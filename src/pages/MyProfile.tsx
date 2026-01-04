@@ -46,8 +46,49 @@ function initials(firstName: string, lastName: string) {
   return (a + b).toUpperCase() || "U";
 }
 
-function sanitizePhone(value: string) {
-  return value.replace(/[^0-9+\s]/g, "");
+const countryCodes = [
+  { code: "+961", country: "Lebanon", flag: "🇱🇧" },
+  { code: "+1", country: "USA", flag: "🇺🇸" },
+  { code: "+44", country: "UK", flag: "🇬🇧" },
+  { code: "+33", country: "France", flag: "🇫🇷" },
+  { code: "+49", country: "Germany", flag: "🇩🇪" },
+  { code: "+971", country: "UAE", flag: "🇦🇪" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "+20", country: "Egypt", flag: "🇪🇬" },
+  { code: "+962", country: "Jordan", flag: "🇯🇴" },
+  { code: "+963", country: "Syria", flag: "🇸🇾" },
+  { code: "+964", country: "Iraq", flag: "🇮🇶" },
+  { code: "+91", country: "India", flag: "🇮🇳" },
+  { code: "+86", country: "China", flag: "🇨🇳" },
+  { code: "+81", country: "Japan", flag: "🇯🇵" },
+  { code: "+82", country: "South Korea", flag: "🇰🇷" },
+  { code: "+55", country: "Brazil", flag: "🇧🇷" },
+  { code: "+34", country: "Spain", flag: "🇪🇸" },
+  { code: "+39", country: "Italy", flag: "🇮🇹" },
+  { code: "+61", country: "Australia", flag: "🇦🇺" },
+  { code: "+7", country: "Russia", flag: "🇷🇺" },
+];
+
+function sanitizePhoneNumber(value: string) {
+  return value.replace(/[^0-9\s]/g, "");
+}
+
+function getCountryCodeFromPhone(phone: string): string {
+  // Sort by code length descending to match longer codes first (e.g., +971 before +97)
+  const sortedCodes = [...countryCodes].sort((a, b) => b.code.length - a.code.length);
+  for (const c of sortedCodes) {
+    if (phone.startsWith(c.code)) return c.code;
+  }
+  return "+961"; // Default to Lebanon
+}
+
+function getPhoneWithoutCode(phone: string): string {
+  const code = getCountryCodeFromPhone(phone);
+  return phone.startsWith(code) ? phone.slice(code.length).trim() : phone;
+}
+
+function formatFullPhone(countryCode: string, number: string): string {
+  return `${countryCode} ${number}`.trim();
 }
 
 function isEmail(value: string) {
@@ -768,19 +809,44 @@ export default function MyProfile() {
                             To change your verified phone, enter a new one below:
                           </p>
                           <div className="flex gap-2 mt-1.5">
+                            <Select
+                              value={getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone)}
+                              onValueChange={(code) => {
+                                const currentNumber = getPhoneWithoutCode(identityDraft.phone === profile.phone ? "" : identityDraft.phone);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: formatFullPhone(code, currentNumber)
+                                }));
+                              }}
+                            >
+                              <SelectTrigger className="w-[100px] shrink-0">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryCodes.map(c => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.code}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <Input 
                               id="phone" 
-                              value={identityDraft.phone === profile.phone ? "" : identityDraft.phone} 
-                              onChange={e => setIdentityDraft(d => ({
-                                ...d,
-                                phone: sanitizePhone(e.target.value) || profile.phone
-                              }))} 
-                              placeholder="Enter new phone"
+                              value={identityDraft.phone === profile.phone ? "" : getPhoneWithoutCode(identityDraft.phone)} 
+                              onChange={e => {
+                                const code = getCountryCodeFromPhone(identityDraft.phone === profile.phone ? "+961" : identityDraft.phone);
+                                const number = sanitizePhoneNumber(e.target.value);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: number ? formatFullPhone(code, number) : profile.phone
+                                }));
+                              }} 
+                              placeholder="Phone number"
                               aria-invalid={Boolean(identityErrors.phone)} 
                               autoComplete="tel" 
                               className="flex-1" 
                             />
-                            {identityDraft.phone !== profile.phone && identityDraft.phone && hasMin(identityDraft.phone, 6) && (
+                            {identityDraft.phone !== profile.phone && identityDraft.phone && hasMin(getPhoneWithoutCode(identityDraft.phone), 6) && (
                               <Button 
                                 type="button"
                                 variant="outline" 
@@ -802,13 +868,39 @@ export default function MyProfile() {
                       ) : (
                         <div className="mt-1.5">
                           <div className="flex gap-2">
+                            <Select
+                              value={getCountryCodeFromPhone(identityDraft.phone || "+961")}
+                              onValueChange={(code) => {
+                                const currentNumber = getPhoneWithoutCode(identityDraft.phone);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: formatFullPhone(code, currentNumber)
+                                }));
+                              }}
+                            >
+                              <SelectTrigger className="w-[100px] shrink-0">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryCodes.map(c => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.code}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <Input 
                               id="phone" 
-                              value={identityDraft.phone} 
-                              onChange={e => setIdentityDraft(d => ({
-                                ...d,
-                                phone: sanitizePhone(e.target.value)
-                              }))} 
+                              value={getPhoneWithoutCode(identityDraft.phone)} 
+                              onChange={e => {
+                                const code = getCountryCodeFromPhone(identityDraft.phone || "+961");
+                                const number = sanitizePhoneNumber(e.target.value);
+                                setIdentityDraft(d => ({
+                                  ...d,
+                                  phone: formatFullPhone(code, number)
+                                }));
+                              }} 
+                              placeholder="Phone number"
                               aria-invalid={Boolean(identityErrors.phone)} 
                               autoComplete="tel" 
                               className="flex-1" 
@@ -819,7 +911,7 @@ export default function MyProfile() {
                               size="sm" 
                               className="gap-1 shrink-0"
                               onClick={() => handleSendVerificationCode("phone", identityDraft.phone)}
-                              disabled={sendingCode || !hasMin(identityDraft.phone, 6)}
+                              disabled={sendingCode || !hasMin(getPhoneWithoutCode(identityDraft.phone), 6)}
                             >
                               <ShieldCheck className="h-4 w-4" />
                               {sendingCode ? "Sending..." : "Verify"}
