@@ -50,12 +50,12 @@ export function ReviewDialog({
 }: ReviewDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-2xl max-w-md">
-        <DialogHeader>
+      <DialogContent className="rounded-none sm:rounded-2xl max-w-md mx-auto my-0 sm:my-auto h-full sm:h-auto sm:max-h-[90vh] flex flex-col">
+        <DialogHeader className="pr-8">
           <DialogTitle>Write a review</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 overflow-y-auto pb-2">
           {/* Rating Section */}
           <div className="rounded-2xl border p-4 space-y-3">
             <div>
