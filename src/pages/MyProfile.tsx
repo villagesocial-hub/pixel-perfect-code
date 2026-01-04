@@ -89,8 +89,8 @@ const PROFILE_STORAGE_KEY = "user-profile";
 
 const defaultProfile: Profile = {
   imageDataUrl: "",
-  firstName: "Antoun",
-  lastName: "Elmorr",
+  firstName: "",
+  lastName: "",
   email: "antoun.elmorr@example.com",
   emailVerified: true,
   phone: "",
