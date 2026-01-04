@@ -724,9 +724,9 @@ export default function MyProfile() {
                       <Label htmlFor="email">Email</Label>
                       {profile.emailVerified ? (
                         <div className="mt-1.5">
-                          <div className="flex items-center gap-2 p-2.5 bg-muted/50 border border-border rounded-md">
-                            <span className="text-sm text-muted-foreground flex-1">{profile.email}</span>
-                            <Badge variant="success" className="gap-1 text-xs">
+                          <div className="flex items-center gap-2 p-2.5 bg-muted/50 border border-border rounded-md min-w-0">
+                            <span className="text-sm text-muted-foreground flex-1 truncate">{profile.email}</span>
+                            <Badge variant="success" className="gap-1 text-xs shrink-0">
                               <Check className="h-3 w-3" /> Verified
                             </Badge>
                           </div>
