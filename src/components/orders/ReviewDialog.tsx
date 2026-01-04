@@ -139,7 +139,7 @@ export function ReviewDialog({
                   className="hidden"
                   onChange={(e) => onAddImages(e.target.files)}
                 />
-                <span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                <span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
                   <ImageIcon className="h-4 w-4" /> Upload
                 </span>
               </label>
@@ -196,21 +196,21 @@ export function ReviewDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" className="rounded-xl" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
 
           {existingReview && (
             <Button
               variant="outline"
-              className="rounded-xl gap-2"
+              className="gap-2"
               onClick={onDelete}
             >
               <Trash2 className="h-4 w-4" /> Delete
             </Button>
           )}
 
-          <Button className="rounded-xl" onClick={onSubmit} disabled={!(rating > 0)}>
+          <Button onClick={onSubmit} disabled={!(rating > 0)}>
             Submit review
           </Button>
         </DialogFooter>
