@@ -282,7 +282,7 @@ export function OrderDetailSheet({
                               </>
                             ) : disabled ? (
                               <Button variant="outline" size="sm" className="rounded-xl gap-2" disabled>
-                                <Star className="h-4 w-4" /> Review
+                                <Star className="h-4 w-4" /> Review item
                               </Button>
                             ) : (
                               <Button
@@ -292,7 +292,7 @@ export function OrderDetailSheet({
                                   onStartReview({ type: "item", orderId: order.id, itemId: item.id })
                                 }
                               >
-                                <Star className="h-4 w-4" /> Review
+                                <Star className="h-4 w-4" /> Review item
                               </Button>
                             )}
                           </div>
