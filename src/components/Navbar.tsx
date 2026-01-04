@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Heart } from "lucide-react";
+import { ShoppingCart, Search, Heart, Package, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -33,7 +33,7 @@ export const Navbar = () => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {/* Mobile Search Toggle */}
           <Button
             variant="ghost"
@@ -43,6 +43,20 @@ export const Navbar = () => {
           >
             <Search className="w-5 h-5" />
           </Button>
+
+          {/* Orders */}
+          <Link to="/orders">
+            <Button variant="ghost" size="icon" className="relative">
+              <Package className="w-5 h-5" />
+            </Button>
+          </Link>
+
+          {/* Profile */}
+          <Link to="/profile">
+            <Button variant="ghost" size="icon" className="relative">
+              <User className="w-5 h-5" />
+            </Button>
+          </Link>
 
           {/* Wishlist */}
           <Link to="/wishlist">
