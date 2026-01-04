@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Search } from "lucide-react";
 import type { Order, ReviewTarget, DeleteTarget, ReviewPayload } from "@/types/orders";
@@ -186,32 +185,26 @@ export default function OrdersReviewsPage() {
           </div>
 
           {/* Orders List */}
-          <div>
-            <div className="px-0 pb-4">
-              <ScrollArea className="h-[640px] pr-3">
-                <div className="space-y-3">
-                  {filtered.length === 0 ? (
-                    <div className="rounded-2xl border p-6 text-center">
-                      <div className="text-sm font-semibold">No orders found</div>
-                      <div className="mt-1 text-sm text-muted-foreground">
-                        Try a different search.
-                      </div>
-                    </div>
-                  ) : (
-                    filtered.map(o => (
-                      <OrderCard
-                        key={o.id}
-                        order={o}
-                        onOpen={openOrder}
-                        onDownloadInvoice={downloadInvoice}
-                        onDownloadReceipt={downloadReceipt}
-                        onStartReview={handleStartOrderReview}
-                      />
-                    ))
-                  )}
+          <div className="space-y-3">
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl border p-6 text-center">
+                <div className="text-sm font-semibold">No orders found</div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  Try a different search.
                 </div>
-              </ScrollArea>
-            </div>
+              </div>
+            ) : (
+              filtered.map(o => (
+                <OrderCard
+                  key={o.id}
+                  order={o}
+                  onOpen={openOrder}
+                  onDownloadInvoice={downloadInvoice}
+                  onDownloadReceipt={downloadReceipt}
+                  onStartReview={handleStartOrderReview}
+                />
+              ))
+            )}
           </div>
         </div>
 
