@@ -19,6 +19,8 @@ import NotFound from "./pages/NotFound";
 import Maintenance from "./pages/Maintenance";
 import SessionExpired from "./pages/SessionExpired";
 import About from "./pages/About";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
                 <Route path="/maintenance-preview" element={<Maintenance />} />
                 <Route path="/session-expired-preview" element={<SessionExpired />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-use" element={<TermsOfUse />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
