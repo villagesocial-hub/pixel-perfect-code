@@ -22,8 +22,33 @@ export const Navbar = () => {
           <img src={logo} alt="Kwixi" className="h-8" />
         </Link>
 
-        {/* Right Actions - Desktop Only */}
+        {/* Desktop/Tablet Navigation */}
         <div className="hidden sm:flex items-center gap-1">
+          {/* Info Pages */}
+          <Link to="/about">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Info className="w-5 h-5" />
+            </Button>
+          </Link>
+          <Link to="/delivery">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Truck className="w-5 h-5" />
+            </Button>
+          </Link>
+          <Link to="/privacy-policy">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Shield className="w-5 h-5" />
+            </Button>
+          </Link>
+          <Link to="/terms-of-use">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <FileText className="w-5 h-5" />
+            </Button>
+          </Link>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-700 mx-1" />
+
           {/* Orders */}
           <Link to="/orders">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
@@ -63,26 +88,25 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Burger Menu Toggle */}
+        {/* Mobile Burger Menu Toggle */}
         <Button
           variant="ghost"
           size="icon"
-          className="text-white hover:bg-white/10 hover:text-white"
+          className="sm:hidden text-white hover:bg-white/10 hover:text-white"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
       </div>
 
-      {/* Dropdown Menu */}
+      {/* Mobile Dropdown Menu */}
       {isMenuOpen && (
-        <div className="bg-[hsl(var(--gray-900))] border-t border-gray-800 px-4 py-3 animate-fade-in">
+        <div className="sm:hidden bg-[hsl(var(--gray-900))] border-t border-gray-800 px-4 py-3 animate-fade-in">
           <nav className="flex flex-col gap-1">
-            {/* Mobile-only links */}
             <Link
               to="/orders"
               onClick={closeMenu}
-              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
             >
               <Package className="w-5 h-5" />
               <span className="text-sm">My Orders</span>
@@ -90,7 +114,7 @@ export const Navbar = () => {
             <Link
               to="/profile"
               onClick={closeMenu}
-              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
             >
               <User className="w-5 h-5" />
               <span className="text-sm">My Profile</span>
@@ -98,7 +122,7 @@ export const Navbar = () => {
             <Link
               to="/wishlist"
               onClick={closeMenu}
-              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
             >
               <Heart className="w-5 h-5" />
               <span className="text-sm">Wishlist</span>
@@ -111,7 +135,7 @@ export const Navbar = () => {
             <Link
               to="/cart"
               onClick={closeMenu}
-              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               <span className="text-sm">Cart</span>
@@ -122,10 +146,9 @@ export const Navbar = () => {
               )}
             </Link>
 
-            {/* Divider for mobile */}
-            <div className="sm:hidden h-px bg-gray-800 my-2" />
+            {/* Divider */}
+            <div className="h-px bg-gray-800 my-2" />
 
-            {/* Common links */}
             <Link
               to="/about"
               onClick={closeMenu}
