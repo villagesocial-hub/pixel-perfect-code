@@ -7,18 +7,21 @@ const About = () => {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-background">
       {/* Hero Section */}
-      <section 
-        className="relative py-20 px-4 bg-cover bg-center"
-        style={{ backgroundImage: `url(${aboutHero})` }}
-      >
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Shop with Confidence
-          </h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto">
-            We're committed to making your shopping experience seamless, secure, and satisfying. Here's what sets us apart.
-          </p>
+      <section className="relative">
+        <img 
+          src={aboutHero} 
+          alt="Shopping experience" 
+          className="w-full h-auto object-contain"
+        />
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+          <div className="max-w-4xl mx-auto text-center px-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Shop with Confidence
+            </h1>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+              We're committed to making your shopping experience seamless, secure, and satisfying. Here's what sets us apart.
+            </p>
+          </div>
         </div>
       </section>
 
