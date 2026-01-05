@@ -173,11 +173,11 @@ const About = () => {
             </div>
             <div className="flex items-center gap-2 bg-background rounded-full px-4 py-2">
               <Mail className="w-4 h-4 text-foreground" />
-              <span className="text-sm text-foreground">support@kwixi.com</span>
+              <span className="text-sm text-foreground">contact@karimax.com</span>
             </div>
             <div className="flex items-center gap-2 bg-background rounded-full px-4 py-2">
               <Phone className="w-4 h-4 text-foreground" />
-              <span className="text-sm text-foreground">1-800-KWIXI</span>
+              <span className="text-sm text-foreground">70 222 333</span>
             </div>
           </div>
           <Button asChild>

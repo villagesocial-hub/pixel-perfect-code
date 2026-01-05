@@ -120,7 +120,7 @@ const PrivacyPolicy = () => {
                 <h2 className="text-lg font-semibold text-foreground mb-2">Contact Us</h2>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   If you have any questions about this Privacy Policy or wish to exercise your rights, please contact us at{" "}
-                  <a href="mailto:privacy@kwixi.com" className="text-foreground underline">privacy@kwixi.com</a>.
+                  <a href="mailto:contact@karimax.com" className="text-foreground underline">contact@karimax.com</a> or call <strong className="text-foreground">70 222 333</strong>.
                 </p>
               </div>
             </div>
