@@ -8,15 +8,16 @@ const About = () => {
     <div className="min-h-[calc(100vh-80px)] bg-background">
       {/* Hero Section */}
       <section className="relative">
-        {/* Image with overlay - text hidden on mobile */}
+        {/* Image with overlay */}
         <div className="relative">
           <img 
             src={aboutHero} 
             alt="Shopping experience" 
             className="w-full h-auto object-contain"
           />
-          <div className="absolute inset-0 bg-black/60 hidden md:flex items-center justify-center">
-            <div className="max-w-4xl mx-auto text-center px-4">
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+            {/* Text only visible on desktop */}
+            <div className="hidden md:block max-w-4xl mx-auto text-center px-4">
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                 Shop with Confidence
               </h1>
