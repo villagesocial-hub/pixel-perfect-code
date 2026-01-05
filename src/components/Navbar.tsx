@@ -1,8 +1,7 @@
-import { ShoppingCart, Search, Heart, Package, User, AlertTriangle, Wrench, TimerOff, Info, FileText, Shield, Truck } from "lucide-react";
+import { ShoppingCart, Heart, Package, User, Info, FileText, Shield, Truck, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import logo from "@/assets/logo.svg";
@@ -10,8 +9,10 @@ import logo from "@/assets/logo.svg";
 export const Navbar = () => {
   const { getCartCount } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const cartCount = getCartCount();
+
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 bg-[hsl(var(--gray-900))] border-b border-gray-800">
@@ -21,79 +22,8 @@ export const Navbar = () => {
           <img src={logo} alt="Kwixi" className="h-8" />
         </Link>
 
-        {/* Search Bar - Desktop */}
-        <div className="hidden md:flex flex-1 max-w-xl">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="pl-10 pr-4 w-full bg-[hsl(var(--gray-800))] border-0 text-white placeholder:text-gray-400 rounded-full"
-            />
-          </div>
-        </div>
-
         {/* Right Actions */}
         <div className="flex items-center gap-1">
-          {/* Mobile Search Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-white hover:bg-white/10 hover:text-white"
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-          >
-            <Search className="w-5 h-5" />
-          </Button>
-
-          {/* About - hidden on mobile */}
-          <Link to="/about" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <Info className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* Privacy Policy - hidden on mobile */}
-          <Link to="/privacy-policy" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <Shield className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* Terms of Use - hidden on mobile */}
-          <Link to="/terms-of-use" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <FileText className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* Delivery Info - hidden on mobile */}
-          <Link to="/delivery" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <Truck className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* 404 Preview (temporary) - hidden on mobile */}
-          <Link to="/404-preview" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <AlertTriangle className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* Maintenance Preview (temporary) - hidden on mobile */}
-          <Link to="/maintenance-preview" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <Wrench className="w-5 h-5" />
-            </Button>
-          </Link>
-
-          {/* Session Expired Preview (temporary) - hidden on mobile */}
-          <Link to="/session-expired-preview" className="hidden sm:block">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
-              <TimerOff className="w-5 h-5" />
-            </Button>
-          </Link>
-
           {/* Orders */}
           <Link to="/orders">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
@@ -131,21 +61,56 @@ export const Navbar = () => {
               )}
             </Button>
           </Link>
+
+          {/* Burger Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/10 hover:text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
-      {isSearchOpen && (
-        <div className="md:hidden px-4 pb-3">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="pl-10 pr-4 w-full bg-[hsl(var(--gray-800))] border-0 text-white placeholder:text-gray-400 rounded-full"
-              autoFocus
-            />
-          </div>
+      {/* Dropdown Menu */}
+      {isMenuOpen && (
+        <div className="bg-[hsl(var(--gray-900))] border-t border-gray-800 px-4 py-3 animate-fade-in">
+          <nav className="flex flex-col gap-1">
+            <Link
+              to="/about"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Info className="w-5 h-5" />
+              <span className="text-sm">About Us</span>
+            </Link>
+            <Link
+              to="/delivery"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Truck className="w-5 h-5" />
+              <span className="text-sm">Shipping & Delivery</span>
+            </Link>
+            <Link
+              to="/privacy-policy"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-sm">Privacy Policy</span>
+            </Link>
+            <Link
+              to="/terms-of-use"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <FileText className="w-5 h-5" />
+              <span className="text-sm">Terms of Use</span>
+            </Link>
+          </nav>
         </div>
       )}
     </header>
