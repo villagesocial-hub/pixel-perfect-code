@@ -131,7 +131,7 @@ const DeliveryInfo = () => {
                 <h2 className="text-lg font-semibold text-foreground mb-2">Questions?</h2>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   If you have any questions about delivery, please contact us at{" "}
-                  <a href="mailto:support@kwixi.com" className="text-foreground underline">support@kwixi.com</a> or call <strong className="text-foreground">1-800-KWIXI</strong>.
+                  <a href="mailto:contact@karimax.com" className="text-foreground underline">contact@karimax.com</a> or call <strong className="text-foreground">70 222 333</strong>.
                 </p>
               </div>
             </div>
