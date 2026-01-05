@@ -8,20 +8,33 @@ const About = () => {
     <div className="min-h-[calc(100vh-80px)] bg-background">
       {/* Hero Section */}
       <section className="relative">
-        <img 
-          src={aboutHero} 
-          alt="Shopping experience" 
-          className="w-full h-auto object-contain"
-        />
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-          <div className="max-w-4xl mx-auto text-center px-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Shop with Confidence
-            </h1>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
-              We're committed to making your shopping experience seamless, secure, and satisfying. Here's what sets us apart.
-            </p>
+        {/* Image with overlay - text hidden on mobile */}
+        <div className="relative">
+          <img 
+            src={aboutHero} 
+            alt="Shopping experience" 
+            className="w-full h-auto object-contain"
+          />
+          <div className="absolute inset-0 bg-black/60 hidden md:flex items-center justify-center">
+            <div className="max-w-4xl mx-auto text-center px-4">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                Shop with Confidence
+              </h1>
+              <p className="text-base lg:text-lg text-white/80 max-w-2xl mx-auto">
+                We're committed to making your shopping experience seamless, secure, and satisfying. Here's what sets us apart.
+              </p>
+            </div>
           </div>
+        </div>
+        
+        {/* Text below image on mobile */}
+        <div className="md:hidden bg-muted/30 py-8 px-4 text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-3">
+            Shop with Confidence
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            We're committed to making your shopping experience seamless, secure, and satisfying. Here's what sets us apart.
+          </p>
         </div>
       </section>
 
