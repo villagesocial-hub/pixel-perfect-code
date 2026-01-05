@@ -22,8 +22,8 @@ export const Navbar = () => {
           <img src={logo} alt="Kwixi" className="h-8" />
         </Link>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-1">
+        {/* Right Actions - Desktop Only */}
+        <div className="hidden sm:flex items-center gap-1">
           {/* Orders */}
           <Link to="/orders">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
@@ -61,23 +61,71 @@ export const Navbar = () => {
               )}
             </Button>
           </Link>
-
-          {/* Burger Menu Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/10 hover:text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
         </div>
+
+        {/* Burger Menu Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-white/10 hover:text-white"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
       </div>
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
         <div className="bg-[hsl(var(--gray-900))] border-t border-gray-800 px-4 py-3 animate-fade-in">
           <nav className="flex flex-col gap-1">
+            {/* Mobile-only links */}
+            <Link
+              to="/orders"
+              onClick={closeMenu}
+              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Package className="w-5 h-5" />
+              <span className="text-sm">My Orders</span>
+            </Link>
+            <Link
+              to="/profile"
+              onClick={closeMenu}
+              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <User className="w-5 h-5" />
+              <span className="text-sm">My Profile</span>
+            </Link>
+            <Link
+              to="/wishlist"
+              onClick={closeMenu}
+              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Heart className="w-5 h-5" />
+              <span className="text-sm">Wishlist</span>
+              {wishlistCount > 0 && (
+                <span className="ml-auto text-xs bg-white text-[hsl(var(--gray-900))] px-2 py-0.5 rounded-full font-medium">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/cart"
+              onClick={closeMenu}
+              className="sm:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              <span className="text-sm">Cart</span>
+              {cartCount > 0 && (
+                <span className="ml-auto text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Divider for mobile */}
+            <div className="sm:hidden h-px bg-gray-800 my-2" />
+
+            {/* Common links */}
             <Link
               to="/about"
               onClick={closeMenu}
