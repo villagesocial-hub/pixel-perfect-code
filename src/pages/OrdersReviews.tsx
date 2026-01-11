@@ -45,9 +45,6 @@ export default function OrdersReviewsPage() {
     downloadFile(`${safeFilename(order.number)} Invoice.pdf`, "application/pdf", docText(order));
   }, []);
 
-  const downloadReceipt = useCallback((order: Order) => {
-    downloadFile(`${safeFilename(order.number)} Receipt.pdf`, "application/pdf", docText(order));
-  }, []);
 
   const getExistingReviewPayload = useCallback((t: ReviewTarget): ReviewPayload | undefined => {
     const order = orders.find(o => o.id === t.orderId);
@@ -200,7 +197,6 @@ export default function OrdersReviewsPage() {
                   order={o}
                   onOpen={openOrder}
                   onDownloadInvoice={downloadInvoice}
-                  onDownloadReceipt={downloadReceipt}
                   onStartReview={handleStartOrderReview}
                 />
               ))
@@ -214,7 +210,6 @@ export default function OrdersReviewsPage() {
           onOpenChange={setDetailOpen}
           order={selected}
           onDownloadInvoice={downloadInvoice}
-          onDownloadReceipt={downloadReceipt}
           onStartReview={startReview}
           onRequestDelete={requestDelete}
           onOpenProduct={openProduct}

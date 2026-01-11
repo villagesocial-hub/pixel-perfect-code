@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   FileText,
-  Receipt,
   MessageCircle,
   Star,
   Pencil,
@@ -23,7 +22,6 @@ interface OrderDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   order: Order | null;
   onDownloadInvoice: (order: Order) => void;
-  onDownloadReceipt: (order: Order) => void;
   onStartReview: (target: ReviewTarget) => void;
   onRequestDelete: (target: DeleteTarget) => void;
   onOpenProduct: (url: string) => void;
@@ -34,7 +32,6 @@ export function OrderDetailSheet({
   onOpenChange,
   order,
   onDownloadInvoice,
-  onDownloadReceipt,
   onStartReview,
   onRequestDelete,
   onOpenProduct,
@@ -91,13 +88,6 @@ export function OrderDetailSheet({
                   onClick={() => onDownloadInvoice(order)}
                 >
                   <FileText className="h-4 w-4" /> Download invoice
-                </Button>
-                <Button
-                  variant="outline"
-                  className="rounded-xl gap-2"
-                  onClick={() => onDownloadReceipt(order)}
-                >
-                  <Receipt className="h-4 w-4" /> Download receipt
                 </Button>
                 <Button
                   variant="outline"
