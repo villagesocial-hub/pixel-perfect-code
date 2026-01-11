@@ -13,7 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FileText, Receipt, Star, MoreVertical } from "lucide-react";
+import { FileText, Star, MoreVertical } from "lucide-react";
 import type { Order } from "@/types/orders";
 import { formatMoney, statusTone, reviewedCounts, reviewDisabledReason } from "@/lib/orders-utils";
 import { StatusIcon } from "./StatusIcon";
@@ -23,7 +23,6 @@ interface OrderCardProps {
   order: Order;
   onOpen: (orderId: string) => void;
   onDownloadInvoice: (order: Order) => void;
-  onDownloadReceipt: (order: Order) => void;
   onStartReview: (orderId: string) => void;
 }
 
@@ -31,7 +30,6 @@ export function OrderCard({
   order,
   onOpen,
   onDownloadInvoice,
-  onDownloadReceipt,
   onStartReview
 }: OrderCardProps) {
   const { itemReviewed, itemsTotal, orderReviewed } = reviewedCounts(order);
@@ -75,9 +73,6 @@ export function OrderCard({
 
               <DropdownMenuItem onClick={() => onDownloadInvoice(order)} className="gap-2">
                 <FileText className="h-4 w-4" /> Download invoice
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDownloadReceipt(order)} className="gap-2">
-                <Receipt className="h-4 w-4" /> Download receipt
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
