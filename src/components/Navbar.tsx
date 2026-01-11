@@ -1,4 +1,4 @@
-import { ShoppingCart, Heart, Package, User, Info, FileText, Shield, Truck, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Package, User, Info, FileText, Shield, Truck, Menu, X, SearchX, Clock, Wrench } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -43,6 +43,26 @@ export const Navbar = () => {
           <Link to="/terms-of-use">
             <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
               <FileText className="w-5 h-5" />
+            </Button>
+          </Link>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-700 mx-1" />
+
+          {/* Preview Pages */}
+          <Link to="/404-preview">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <SearchX className="w-5 h-5" />
+            </Button>
+          </Link>
+          <Link to="/maintenance-preview">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Wrench className="w-5 h-5" />
+            </Button>
+          </Link>
+          <Link to="/session-expired-preview">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 hover:text-white">
+              <Clock className="w-5 h-5" />
             </Button>
           </Link>
 
@@ -180,6 +200,34 @@ export const Navbar = () => {
             >
               <FileText className="w-5 h-5" />
               <span className="text-sm">Terms of Use</span>
+            </Link>
+
+            {/* Divider */}
+            <div className="h-px bg-gray-800 my-2" />
+
+            <Link
+              to="/404-preview"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <SearchX className="w-5 h-5" />
+              <span className="text-sm">404 Page</span>
+            </Link>
+            <Link
+              to="/maintenance-preview"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Wrench className="w-5 h-5" />
+              <span className="text-sm">Maintenance Page</span>
+            </Link>
+            <Link
+              to="/session-expired-preview"
+              onClick={closeMenu}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-white/10 transition-colors"
+            >
+              <Clock className="w-5 h-5" />
+              <span className="text-sm">Session Expired</span>
             </Link>
           </nav>
         </div>
